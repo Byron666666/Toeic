@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FlipWords 多益單字卡</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">English flashcards</p>
+        <h1>FlipWords</h1>
+      </div>
+      <div class="topbar-actions" aria-label="資料管理">
+        <button class="ghost-button" id="exportButton" type="button" title="匯出備份">
+          匯出
+        </button>
+        <button class="ghost-button" id="importButton" type="button" title="匯入備份">
+          匯入
+        </button>
+        <input id="importFile" type="file" accept="application/json" hidden />
+      </div>
+    </header>
+
+    <main class="app-shell">
+      <section class="study-panel" aria-labelledby="studyTitle">
+        <div class="panel-heading">
+          <div>
+            <p class="eyebrow">Review deck</p>
+            <h2 id="studyTitle">多益單字複習</h2>
+          </div>
+          <div class="stats-grid" aria-label="單字統計">
+            <div>
+              <span id="totalCount">0</span>
+              <small>全部單字</small>
+            </div>
+            <div>
+              <span id="learnedCount">0</span>
+              <small>已學會</small>
+            </div>
+          </div>
+        </div>
+
+        <div class="pile-switcher" aria-label="選擇複習牌堆">
+          <button class="pile-button is-active" id="unlearnedPileButton" type="button" aria-pressed="true">
+            <span>未學會</span>
+            <strong id="unlearnedPileCount">0</strong>
+          </button>
+          <button class="pile-button" id="learnedPileButton" type="button" aria-pressed="false">
+            <span>已學會</span>
+            <strong id="learnedPileCount">0</strong>
+          </button>
+        </div>
+
+        <div class="progress-row">
+          <span id="activePileLabel">未學會牌堆</span>
+          <span id="positionText">0 / 0</span>
+          <div class="progress-track" aria-hidden="true">
+            <span id="progressFill"></span>
+          </div>
+        </div>
+
+        <div class="flashcard" id="flashcard" role="button" tabindex="0" aria-label="翻面">
+          <span class="flashcard-face flashcard-front">
+            <span class="card-tag" id="cardTag">General</span>
+            <strong class="card-word" id="cardWord">Add a word</strong>
+            <span class="card-phonetic" id="cardPhonetic"></span>
+            <span class="card-pos" id="cardPartOfSpeech"></span>
+            <span class="card-note">點擊卡片翻面</span>
+          </span>
+          <span class="flashcard-face flashcard-back">
+            <span class="card-tag" id="cardBackTag">Meaning</span>
+            <strong class="card-meaning" id="cardMeaning">新增單字後開始複習</strong>
+            <span class="card-related" id="cardSynonyms"></span>
+            <span class="card-example" id="cardExample"></span>
+            <span class="card-example-meaning" id="cardExampleMeaning"></span>
+          </span>
+        </div>
+
+        <div class="controls" aria-label="單字卡操作">
+          <button class="icon-button" id="previousButton" type="button" title="上一張" aria-label="上一張">
+            ←
+          </button>
+          <button class="primary-button" id="pronounceButton" type="button">發音</button>
+          <button class="primary-button" id="flipButton" type="button">翻面</button>
+          <button class="icon-button" id="nextButton" type="button" title="下一張" aria-label="下一張">
+            →
+          </button>
+          <button class="ghost-button" id="shuffleButton" type="button">隨機</button>
+        </div>
+        <p class="voice-status" id="voiceStatus" aria-live="polite"></p>
+
+        <label class="learned-toggle">
+          <input id="learnedToggle" type="checkbox" />
+          <span>標記為已學會</span>
+        </label>
+      </section>
+
+      <section class="library-panel" aria-labelledby="libraryTitle">
+        <div class="panel-heading">
+          <div>
+            <p class="eyebrow">Personal library</p>
+            <h2 id="libraryTitle">單字庫</h2>
+          </div>
+          <span class="pill" id="visibleCount">0 張</span>
+        </div>
+
+        <form class="word-form" id="wordForm" autocomplete="off">
+          <input id="editingId" name="editingId" type="hidden" />
+          <div class="form-grid">
+            <label>
+              <span>英文單字</span>
+              <input id="wordInput" name="word" type="text" placeholder="例如 sustainable" required />
+            </label>
+            <label>
+              <span>中文意思</span>
+              <input id="meaningInput" name="meaning" type="text" placeholder="例如 永續的" required />
+            </label>
+            <label>
+              <span>KK 音標</span>
+              <input id="phoneticInput" name="phonetic" type="text" placeholder="例如 [səˋstenəbḷ]" />
+            </label>
+            <label>
+              <span>詞性</span>
+              <input id="partOfSpeechInput" name="partOfSpeech" type="text" placeholder="例如 adj. / v. / n." />
+            </label>
+            <label>
+              <span>分類</span>
+              <input id="tagInput" name="tag" type="text" placeholder="例如 A 基礎單字" list="tagSuggestions" />
+              <datalist id="tagSuggestions"></datalist>
+            </label>
+            <label>
+              <span>例句</span>
+              <textarea id="exampleInput" name="example" rows="3" placeholder="This idea is sustainable over time."></textarea>
+            </label>
+            <label>
+              <span>例句中文</span>
+              <textarea id="exampleMeaningInput" name="exampleMeaning" rows="3" placeholder="這個想法長期來看是永續的。"></textarea>
+            </label>
+            <label>
+              <span>同義詞</span>
+              <input id="synonymsInput" name="synonyms" type="text" placeholder="例如 durable / renewable" />
+            </label>
+          </div>
+          <div class="form-actions">
+            <button class="primary-button" id="saveButton" type="submit">新增單字</button>
+            <button class="ghost-button" id="cancelEditButton" type="button" hidden>取消編輯</button>
+          </div>
+        </form>
+
+        <div class="filters">
+          <label>
+            <span>搜尋</span>
+            <input id="searchInput" type="search" placeholder="搜尋英文、中文、KK、詞性或例句" />
+          </label>
+          <label>
+            <span>分類</span>
+            <select id="tagFilter">
+              <option value="all">全部分類</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="card-list" id="cardList" aria-live="polite"></div>
+      </section>
+    </main>
+
+    <script src="vocab-data.js"></script>
+    <script src="toeic-extra-data.js"></script>
+    <script src="pronunciation-data.js"></script>
+    <script src="enrichment-data.js"></script>
+    <script src="card-details-data.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
