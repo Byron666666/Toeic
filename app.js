@@ -3,7 +3,7 @@ const LEGACY_LIBRARY_VERSION_KEY = "flipwords.libraryVersion.v1";
 const STORAGE_SCOPE = getStorageScope();
 const STORAGE_KEY = `flipwords.${STORAGE_SCOPE}.cards.v2`;
 const LIBRARY_VERSION_KEY = `flipwords.${STORAGE_SCOPE}.libraryVersion.v2`;
-const BUILT_IN_LIBRARY_VERSION = "pdf-vocab-2026-05-30-abcd-pos-examples-kk-audio-json-1-enrichment-1-toeic-all-details-5";
+const BUILT_IN_LIBRARY_VERSION = "flipwords-backup-2026-05-30-2-json-4722-repaired-import";
 const DEMO_CARD_IDS = new Set(["seed-sustainable", "seed-improve", "seed-confident"]);
 
 const fallbackCards = [
@@ -13,8 +13,8 @@ const fallbackCards = [
     meaning: "永續的",
     phonetic: "[səˋstenəbḷ]",
     partOfSpeech: "adj.",
-    example: "A sustainable habit is easier to keep for a long time.",
-    exampleMeaning: "永續的習慣比較容易長期維持。",
+    example: "The hotel switched to sustainable cleaning products.",
+    exampleMeaning: "這家飯店改用永續的清潔用品。",
     synonyms: "durable / renewable",
     tag: "A 基礎單字",
     learned: false,
@@ -26,8 +26,8 @@ const fallbackCards = [
     meaning: "改善；進步",
     phonetic: "[ɪmˋpruv]",
     partOfSpeech: "v.",
-    example: "Small daily reviews can improve your vocabulary.",
-    exampleMeaning: "每天小量複習可以提升你的字彙量。",
+    example: "The new checklist helped improve service speed.",
+    exampleMeaning: "新的檢查清單幫助提升服務速度。",
     synonyms: "enhance / upgrade",
     tag: "A 基礎單字",
     learned: false,
@@ -39,8 +39,8 @@ const fallbackCards = [
     meaning: "有自信的",
     phonetic: "[ˋkɑnfədənt]",
     partOfSpeech: "adj.",
-    example: "She became more confident after practicing every day.",
-    exampleMeaning: "她每天練習後變得更有自信。",
+    example: "The sales representative sounded confident during the call.",
+    exampleMeaning: "業務代表在電話中聽起來很有自信。",
     synonyms: "assured / self-reliant",
     tag: "C 形容副詞",
     learned: false,
@@ -73,9 +73,9 @@ const elements = {
   cardPhonetic: document.querySelector("#cardPhonetic"),
   cardPartOfSpeech: document.querySelector("#cardPartOfSpeech"),
   cardMeaning: document.querySelector("#cardMeaning"),
+  cardSynonyms: document.querySelector("#cardSynonyms"),
   cardExample: document.querySelector("#cardExample"),
   cardExampleMeaning: document.querySelector("#cardExampleMeaning"),
-  cardSynonyms: document.querySelector("#cardSynonyms"),
   pronounceButton: document.querySelector("#pronounceButton"),
   voiceStatus: document.querySelector("#voiceStatus"),
   flipButton: document.querySelector("#flipButton"),
@@ -253,9 +253,7 @@ function sanitizeCard(card, fallbackId) {
     speakText,
     partOfSpeech: String(card.partOfSpeech || card.pos || autoDetails.partOfSpeech || "").trim(),
     example: String(card.example || autoDetails.example || "").trim(),
-    exampleMeaning: String(
-      card.exampleMeaning || card.exampleChinese || extraEnrichment.exampleMeaning || autoDetails.exampleMeaning || "",
-    ).trim(),
+    exampleMeaning: String(card.exampleMeaning || card.exampleChinese || autoDetails.exampleMeaning || "").trim(),
     synonyms: normalizeSynonyms(card.synonyms || extraEnrichment.synonyms || autoDetails.synonyms || ""),
     tag: normalizeTag(String(card.tag || "")),
     learned: Boolean(card.learned),
@@ -296,10 +294,16 @@ function mergeBuiltInCards(existingCards) {
     (card) =>
       !DEMO_CARD_IDS.has(card.id) &&
       !builtInIds.has(card.id) &&
-      !builtInKeys.has(cardKey(card)),
+      !builtInKeys.has(cardKey(card)) &&
+      !isGeneratedLibraryCard(card),
   );
 
   return [...upgradedBuiltInCards, ...customCards];
+}
+
+function isGeneratedLibraryCard(card) {
+  const id = String(card?.id || "");
+  return /^pdf-[a-z]-\d+$/i.test(id) || /^toeic-all-\d+$/i.test(id);
 }
 
 function normalizeTag(tag) {

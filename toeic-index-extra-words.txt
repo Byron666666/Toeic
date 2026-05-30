@@ -1,0 +1,522 @@
+toeic-all-0156	saccelerate	
+toeic-all-0210	addupto	
+toeic-all-0227	Ov Ot O27 O01	
+toeic-all-0228	SHS 2-5 tA RB 20	
+toeic-index-0329	bedesignedtodo	
+toeic-all-0378	aroundthe corner	
+toeic-index-0385	art museum,	
+toeic-all-0389	artistic (= as a favor)	
+toeic-all-0390	as aresult of	
+toeic-index-0395	assoonas possible	
+toeic-index-0420	atadiscounted price	
+toeic-index-0421	atafast pace	
+toeic-index-0422	atarapid rate	
+toeic-index-0423	atastretch	
+toeic-index-0425	atall costs	
+toeic-index-0426	atall times	
+toeic-all-0428	at large (= at no cost)	
+toeic-index-0429	atnoextracharge	
+toeic-index-0433	atthe discretionof	
+toeic-all-0488	alteration (= ambience)	
+toeic-index-0502	answerthe phone	
+toeic-all-0504	anticipate (unanticipated)	
+toeic-all-0551	officer)	
+toeic-all-0579	chief (CFO)	
+toeic-all-0621	branch (= satellite office)	
+toeic-all-0650	the time	
+toeic-all-0652	way of	
+toeic-index-0660	be in a position todo	
+toeic-all-0673	interest to	
+toeic-index-0674	be ona trip	
+toeic-index-0681	be reluctant todo	
+toeic-index-0690	besupposedtodo	
+toeic-index-0694	beunwillingtodo	
+toeic-index-0730	blame AonB	
+toeic-all-0779	cookbook (= cookware)	
+toeic-all-0800	cost estimate (=creditBtoA)	
+toeic-all-0802	one's arms	
+toeic-all-0803	the street	
+toeic-all-0814	computer literate	
+toeic-index-0963	combine AwithB	
+toeic-index-0968	cometoadecision	
+toeic-index-0969	come toa standstill	
+toeic-index-0970	come to anend	
+toeic-index-0984	commercialspace	
+toeic-index-0991	commoninterest	
+toeic-all-1028	R51	
+toeic-index-1055	do Aa favor	
+toeic-index-1060	doone's utmost.	
+toeic-index-1069	todo	
+toeic-index-1093	drawa check	
+toeic-index-1095	drawon	
+toeic-index-1096	drawthelineat	
+toeic-all-1114	dry dishes (= drycleaner's)	
+toeic-all-1174	dig withashovel	
+toeic-all-1219	disease (= getoff, leave)	
+toeic-all-1237	epresentative	
+toeic-all-1245	cutone's losses.	
+toeic-all-1286	Gelect	
+toeic-all-1374	fastenthe strap	
+toeic-all-1403	fil	
+toeic-index-1404	filloutin	
+toeic-all-1405	fillin for	
+toeic-index-1438	fiting room	
+toeic-index-1446	tlawed	
+toeic-all-1507	exert pressureon	
+toeic-index-1564	friendly)	
+toeic-all-1613	grease 25a)	
+toeic-index-1656	hereh	
+toeic-all-1659	havea day off	
+toeic-index-1660	haveadiscussion	
+toeic-index-1661	haveatiattiie	
+toeic-all-1662	haveagood view	
+toeic-all-1663	have along day	
+toeic-all-1667	one's shoulder	
+toeic-all-1673	have reason todo	
+toeic-index-1676	haveyettodo	
+toeic-index-1702	gamish	
+toeic-all-1726	get apermit	
+toeic-all-1727	getaphone call	
+toeic-all-1728	geta promotion	
+toeic-all-1729	get areplacement	
+toeic-all-1731	geta ticket	
+toeic-all-1733	getan appointment	
+toeic-all-1734	get back intouch	
+toeic-all-1735	getin line	
+toeic-all-1736	getintouch with	
+toeic-all-1753	give Aaride	
+toeic-all-1754	give Aan advance	
+toeic-all-1755	give acall	
+toeic-all-1757	giveagood price	
+toeic-all-1758	give ahand	
+toeic-all-1759	give apresentation	
+toeic-all-1762	give ita try	
+toeic-index-1769	godownthesteps	
+toeic-index-1772	gointobusiness	
+toeic-index-1773	goon	
+toeic-index-1774	goonvacation	
+toeic-all-1775	gooutof business	
+toeic-all-1781	gotoa film	
+toeic-index-1783	gowrongwith	
+toeic-all-1830	forlarge purchases	
+toeic-all-1835	forthe sakeof	
+toeic-all-1836	foryour own safety	
+toeic-index-1884	from this day onward.	
+toeic-index-1897	ull time work	
+toeic-index-1908	intially	
+toeic-index-1910	iiiatve	
+toeic-index-1916	imovative	
+toeic-index-1971	interpersonal skis	
+toeic-index-1998	inrelevant	
+toeic-all-2002	tration system	
+toeic-all-2005	tis no wonder (that)	
+toeic-index-2044	inthe coming year	
+toeic-index-2045	inthe distant past	
+toeic-index-2049	inthemiddle of	
+toeic-index-2050	inthe past	
+toeic-index-2051	inthe process of	
+toeic-index-2052	inthe vicinity of	
+toeic-index-2056	inwriting	
+toeic-index-2163	ifit'sokaywith you	
+toeic-index-2164	ifI'mnot mistaken	
+toeic-index-2170	llustrate	
+toeic-index-2195	mprentical	
+toeic-index-2208	ina positive manner	
+toeic-index-2210	inatimely fashion	
+toeic-index-2211	inaccordance with	
+toeic-index-2222	jung	
+toeic-index-2239	make aconclusion	
+toeic-index-2243	make adecision	
+toeic-index-2244	make adelivery	
+toeic-index-2247	make amistake	
+toeic-index-2248	make amove	
+toeic-index-2251	make apurchase	
+toeic-index-2252	make arecording	
+toeic-index-2254	make aresponse	
+toeic-index-2255	makearevision	
+toeic-index-2256	makeaselection	
+toeic-index-2257	make aspeech	
+toeic-all-2258	Malle stop	
+toeic-all-2340	let's end	
+toeic-index-2347	lig	
+toeic-index-2351	ift	
+toeic-index-2372	isting	
+toeic-index-2374	iitter	
+toeic-index-2378	load Aonto B	
+toeic-index-2420	it'snouse-ing	
+toeic-all-2421	Vil bet	
+toeic-index-2427	job tair	
+toeic-index-2429	jeb opportunity	
+toeic-index-2441	Just for aminute.	
+toeic-index-2443	justity	
+toeic-index-2447	justto make sure	
+toeic-index-2450	keep A uptodate	
+toeic-index-2452	keep inmind	
+toeic-all-2454	keep tackol	
+toeic-index-2455	kettle.	
+toeic-all-2464	one's hand	
+toeic-all-2472	lack confidence ==	
+toeic-all-2475	lamppost	
+toeic-all-2476	land atthe dock	
+toeic-all-2477	landfill	
+toeic-all-2478	landing	
+toeic-all-2479	landmark	
+toeic-all-2480	landscaping	
+toeic-all-2481	language acquisition	
+toeic-all-2482	laptop	
+toeic-all-2483	large	
+toeic-all-2484	last	
+toeic-all-2485	last-minute	
+toeic-all-2486	late	
+toeic-all-2487	lately	
+toeic-all-2488	latent	
+toeic-all-2489	latest	
+toeic-all-2490	latest work	
+toeic-all-2491	laugh away	
+toeic-all-2492	launch	
+toeic-all-2493	laundry service	
+toeic-all-2494	law firm	
+toeic-all-2495	lawn	
+toeic-all-2496	wat	
+toeic-all-2497	ax	
+toeic-all-2498	layoff	
+toeic-all-2499	lay out	
+toeic-all-2500	layover	
+toeic-all-2501	lead	
+toeic-all-2502	leadership	
+toeic-all-2503	leading	
+toeic-all-2504	lead (up/down) to	
+toeic-all-2505	leak	
+toeic-all-2506	leaky	
+toeic-all-2507	lean	
+toeic-all-2508	lean back	
+toeic-all-2509	lean over the railing	
+toeic-all-2510	leaming center	
+toeic-all-2511	lease	
+toeic-all-2512	officiate	
+toeic-all-2513	offload	
+toeic-all-2514	often	
+toeic-all-2515	oil painting	
+toeic-all-2516	omission	
+toeic-all-2517	omit	
+toeic-all-2518	onabusiness trip	
+toeic-all-2519	onaregularbasis	
+toeic-all-2520	onaweekly basis.	
+toeic-all-2521	on behalf of	
+toeic-all-2522	on business	
+toeic-all-2523	on call	
+toeic-all-2524	on delivery	
+toeic-all-2525	on display	
+toeic-all-2526	on duty	
+toeic-all-2527	on edge	
+toeic-all-2528	on foot	
+toeic-all-2529	on hand	
+toeic-all-2530	on hold	
+toeic-all-2531	on loan	
+toeic-all-2532	on occasion	
+toeic-all-2533	on one's own	
+toeic-all-2534	on probation	
+toeic-all-2535	on purpose	
+toeic-all-2536	on sale	
+toeic-all-2537	on schedule	
+toeic-all-2538	on standby	
+toeic-all-2539	on strike	
+toeic-all-2540	on the market	
+toeic-all-2541	of	
+toeic-all-2542	on the rise	
+toeic-all-2543	on the spot	
+toeic-all-2544	organize	
+toeic-all-2545	organize apicnic	
+toeic-all-2546	organizer	
+toeic-all-2547	oriented	
+toeic-all-2548	origin	
+toeic-all-2549	original	
+toeic-all-2550	originally	
+toeic-all-2551	originate in	
+toeic-all-2552	ommamental	
+toeic-all-2553	otherwise	
+toeic-all-2554	out of order	
+toeic-all-2555	paper	
+toeic-all-2556	print	
+toeic-all-2557	stock	
+toeic-all-2558	town	
+toeic-all-2559	wall	
+toeic-all-2560	Internet	
+toeic-all-2561	overcharge	
+toeic-all-2562	overcoat	
+toeic-all-2563	overcome	
+toeic-all-2564	overdose	
+toeic-all-2565	overdrawn	
+toeic-all-2566	overdue	
+toeic-all-2567	overestimate	
+toeic-all-2568	overllow	
+toeic-all-2569	overhaul	
+toeic-all-2570	overhead	
+toeic-all-2571	narrative	
+toeic-all-2572	narrow	
+toeic-all-2573	narrowly	
+toeic-all-2574	national holiday	
+toeic-all-2575	nationality	
+toeic-all-2576	nationalize	
+toeic-all-2577	nationwide	
+toeic-all-2578	native	
+toeic-all-2579	natural habitat	
+toeic-all-2580	navigate	
+toeic-all-2581	navigation	
+toeic-all-2582	nearby	
+toeic-all-2583	nearly	
+toeic-all-2584	neatly	
+toeic-all-2585	necessarily	
+toeic-all-2586	necessity	
+toeic-all-2587	necklace	
+toeic-all-2588	need	
+toeic-all-2589	negative	
+toeic-all-2590	negotiation	
+toeic-all-2591	neighbor	
+toeic-all-2592	neighboring	
+toeic-all-2593	net income	
+toeic-all-2594	network	
+toeic-all-2595	neutral	
+toeic-all-2596	neutrality	
+toeic-all-2597	ew appointment	
+toeic-all-2598	newcomer	
+toeic-all-2599	newly arrived	
+toeic-all-2600	newly established	
+toeic-all-2601	newly listed	
+toeic-all-2602	newsletter	
+toeic-all-2603	newspaper	
+toeic-all-2604	newsstand	
+toeic-all-2605	next to	
+toeic-all-2606	nice-looking	
+toeic-all-2607	night shift	
+toeic-all-2608	nightfall	
+toeic-all-2609	nimble	
+toeic-all-2610	nolater than	
+toeic-all-2611	nominate	
+toeic-all-2612	nomination	
+toeic-all-2613	nonstop fight	
+toeic-all-2614	normal	
+toeic-all-2615	not AbutB	
+toeic-all-2616	notaat all	
+toeic-all-2617	notfar from	
+toeic-all-2618	notonly A but also B	
+toeic-all-2619	not to mention	
+toeic-all-2620	noteworthy	
+toeic-all-2621	notice	
+toeic-all-2622	notification	
+toeic-all-2623	nourish	
+toeic-all-2624	nourishment	
+toeic-all-2625	novice	
+toeic-all-2626	nuisance	
+toeic-all-2627	numerous	
+toeic-all-2628	nursery	
+toeic-all-2629	nursing	
+toeic-all-2630	nurture	
+toeic-all-2631	nutrition	
+toeic-all-2632	oar	
+toeic-all-2633	obey	
+toeic-all-2634	obfuscate	
+toeic-all-2635	object	
+toeic-all-2636	objection	
+toeic-all-2637	objective	
+toeic-all-2638	obligation	
+toeic-all-2639	oblige	
+toeic-all-2640	observably	
+toeic-all-2641	observance	
+toeic-all-2642	observant	
+toeic-all-2643	observe	
+toeic-all-2644	observation tower	
+toeic-all-2645	obsess about	
+toeic-all-2646	obsolete	
+toeic-all-2647	obstruct	
+toeic-all-2648	obtain	
+toeic-all-2649	obvious	
+toeic-all-2650	obviously	
+toeic-all-2651	obviously qualified	
+toeic-all-2652	occasionally	
+toeic-all-2653	occupancy	
+toeic-all-2654	occupation	
+toeic-all-2655	and health	
+toeic-all-2656	occupied	
+toeic-all-2657	occupy	
+toeic-all-2658	occur	
+toeic-all-2659	occurrence	
+toeic-all-2660	off chance	
+toeic-all-2661	off the shore	
+toeic-all-2662	oftsimits	
+toeic-all-2663	off-peak	
+toeic-all-2664	off-season	
+toeic-all-2665	offend	
+toeic-all-2666	offer	
+toeic-all-2667	office supplies.	
+toeic-all-2668	official arrangement	
+toeic-all-2669	official title	
+toeic-all-2670	officially	
+toeic-all-2671	meal	
+toeic-all-2672	meal pass	
+toeic-all-2673	meaningful	
+toeic-all-2674	means	
+toeic-all-2675	meanwhile	
+toeic-all-2676	measure	
+toeic-all-2677	measurement	
+toeic-all-2678	mechanical	
+toeic-all-2679	mediate	
+toeic-all-2680	mediation	
+toeic-all-2681	medical facility	
+toeic-all-2682	medicinal	
+toeic-all-2683	meditate	
+toeic-all-2684	meet one's flight	
+toeic-all-2685	meetone's goal	
+toeic-all-2686	meet the deadline	
+toeic-all-2687	meet the expenses	
+toeic-all-2688	meet the standards	
+toeic-all-2689	meeting	
+toeic-all-2690	meeting time	
+toeic-all-2691	memoirs	
+toeic-all-2692	mend	
+toeic-all-2693	menace	
+toeic-all-2694	mention	
+toeic-all-2695	mentor	
+toeic-all-2696	menu	
+toeic-all-2697	merchandise	
+toeic-all-2698	merchant	
+toeic-all-2699	merge	
+toeic-all-2701	merit	
+toeic-all-2702	mess up	
+toeic-all-2703	method	
+toeic-all-2704	metropolitan area	
+toeic-all-2705	midday	
+toeic-all-2706	midtown	
+toeic-all-2707	migration	
+toeic-all-2708	mileage	
+toeic-all-2709	milestone	
+toeic-all-2710	mindful	
+toeic-all-2711	mingle	
+toeic-all-2712	minimally	
+toeic-all-2713	minimize the risk of	
+toeic-all-2714	minimum	
+toeic-all-2715	mining	
+toeic-all-2716	ministry	
+toeic-all-2717	minor	
+toeic-all-2718	minutes	
+toeic-all-2719	miserable	
+toeic-all-2720	mislabeled	
+toeic-all-2721	misplace	
+toeic-all-2722	misprint	
+toeic-all-2723	misread	
+toeic-all-2724	miss	
+toeic-all-2725	missing	
+toeic-all-2726	missing luggage	
+toeic-all-2727	mission	
+toeic-all-2728	mistakenly	
+toeic-all-2729	misuse	
+toeic-all-2730	mobility	
+toeic-all-2731	model	
+toeic-all-2732	model number	
+toeic-all-2733	moderate	
+toeic-all-2734	moderate a meeting	
+toeic-all-2735	moderator	
+toeic-all-2736	modification	
+toeic-all-2737	modity	
+toeic-all-2738	momentarily	
+toeic-all-2739	momentary	
+toeic-all-2740	momentum	
+toeic-all-2741	monetary	
+toeic-all-2742	monitor	
+toeic-all-2743	monopoly	
+toeic-all-2744	morgage	
+toeic-all-2745	motion sickness.	
+toeic-all-2746	motivate	
+toeic-all-2747	motivation	
+toeic-all-2748	mounting	
+toeic-all-2749	move	
+toeic-all-2750	move ahead with	
+toeic-all-2751	move around	
+toeic-all-2752	move forward	
+toeic-all-2753	move over one seat	
+toeic-all-2754	move up	
+toeic-all-2755	multilateral	
+toeic-all-2756	multi-regional	
+toeic-all-2757	mundane	
+toeic-all-2758	municipal	
+toeic-all-2759	mural	
+toeic-all-2760	museum	
+toeic-all-2761	musical instrument	
+toeic-all-2762	must-see	
+toeic-all-2763	mutual	
+toeic-index-2765	permitit	
+toeic-index-2771	post anoticeon	
+toeic-all-2808	primarily (= primary)	
+toeic-index-2812	quota.	
+toeic-all-2813	margin (++ unprofitable)	
+toeic-all-2830	i persist	
+toeic-all-2834	perspective ( perspire	
+toeic-index-2851	pickup the check	
+toeic-all-2869	play arole in	
+toeic-index-2910	possibilty	
+toeic-index-2964	pattially	
+toeic-index-2966	patticipate	
+toeic-index-2967	patticipate in	
+toeic-index-2970	particulary	
+toeic-index-3071	relyon	
+toeic-all-3134	raise one'shand	
+toeic-index-3151	fave review	
+toeic-index-3154	reach aconclusion	
+toeic-index-3161	realestate sale	
+toeic-index-3286	purchase order =	
+toeic-index-3294	puta rush	
+toeic-index-3295	puta strain on	
+toeic-index-3296	putaway	
+toeic-index-3300	putin place	
+toeic-index-3301	putin some overtime	
+toeic-index-3302	put into effect,	
+toeic-index-3304	puton	
+toeic-index-3305	putout for display	
+toeic-all-3323	sequential	
+toeic-index-3325	serve acustomer	
+toeic-index-3328	portion)	
+toeic-all-3332	set down towork	
+toeic-all-3404	sitinalterate seats	
+toeic-all-3460	scale (= miniature)	
+toeic-index-3466	eater,	
+toeic-all-3484	seal (= without trouble)	
+toeic-index-3507	segregate AfromB	
+toeic-index-3518	send anotitication	
+toeic-all-3601	rigorously	
+toeic-index-3649	aipiiee	
+toeic-index-3659	aiep	
+toeic-index-3678	take avacation	
+toeic-index-3682	take anexamination	
+toeic-index-3695	take notes,	
+toeic-index-3697	take on responsibilty	
+toeic-all-3699	one's bagoff	
+toeic-all-3701	out a loan	
+toeic-index-3702	over,	
+toeic-all-3723	stay competiive	
+toeic-all-3748	stop ata light	
+toeic-index-3784	subcontract,	
+toeic-index-3804	suburban train ine	
+toeic-index-3805	subwaystation	
+toeic-all-3810	successfully 254,	
+toeic-all-3843	solid «	
+toeic-all-3844	solitary	
+toeic-index-3917	stand ina line	
+toeic-index-3919	stand inline	
+toeic-all-3956	urban («+ rural)	
+toeic-all-4027	wait	
+toeic-index-4028	wait fora table	
+toeic-index-4030	wait inline	
+toeic-all-4036	walking distance ==	
+toeic-index-4069	ty	
+toeic-index-4070	ttyon	
+toeic-all-4077	turn off («+ turn on)	
+toeic-index-4078	tumonits side	
+toeic-all-4079	tum out	
+toeic-index-4081	tunup	
+toeic-index-4083	tum over	
+toeic-index-4209	toone's advantage	
+toeic-index-4210	tosstart with	
+toeic-index-4273	weather report.	
+toeic-index-4288	when itcomesto	
+toeic-index-4289	whereabout	
+toeic-index-4298	winacontract	

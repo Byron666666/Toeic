@@ -404,10 +404,14 @@ label span,
 .icon-button,
 .primary-button,
 .ghost-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   min-height: 2.75rem;
   border-radius: var(--radius);
   border: 1px solid transparent;
   font-weight: 800;
+  text-decoration: none;
 }
 
 .icon-button {
