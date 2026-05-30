@@ -1,5 +1,8 @@
-const STORAGE_KEY = "flipwords.cards.v1";
-const LIBRARY_VERSION_KEY = "flipwords.libraryVersion.v1";
+const LEGACY_STORAGE_KEY = "flipwords.cards.v1";
+const LEGACY_LIBRARY_VERSION_KEY = "flipwords.libraryVersion.v1";
+const STORAGE_SCOPE = getStorageScope();
+const STORAGE_KEY = `flipwords.${STORAGE_SCOPE}.cards.v2`;
+const LIBRARY_VERSION_KEY = `flipwords.${STORAGE_SCOPE}.libraryVersion.v2`;
 const BUILT_IN_LIBRARY_VERSION = "pdf-vocab-2026-05-30-abcd-pos-examples-kk-audio-json-1-enrichment-1-toeic-all-details-5";
 const DEMO_CARD_IDS = new Set(["seed-sustainable", "seed-improve", "seed-confident"]);
 
@@ -109,6 +112,23 @@ let isFlipped = false;
 let availableVoices = [];
 let voiceStatusTimer = 0;
 
+function getStorageScope() {
+  const host = String(window.location.hostname || "local").toLowerCase();
+  const pathParts = String(window.location.pathname || "")
+    .split("/")
+    .filter(Boolean);
+  const projectPath = host.endsWith("github.io") ? pathParts[0] || "root" : pathParts.slice(0, -1).join("/") || "root";
+  return `${host}/${projectPath}`
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "") || "local-root";
+}
+
+function shouldMigrateLegacyStorage() {
+  const href = String(window.location.href || "").toLowerCase();
+  return href.includes("toeic") || href.includes("%e5%a4%9a%e7%9b%8a") || href.includes("localhost") || href.includes("127.0.0.1");
+}
+
 function createId() {
   if (window.crypto?.randomUUID) {
     return window.crypto.randomUUID();
@@ -154,8 +174,15 @@ function getSpeakText(card) {
 }
 
 function loadCards() {
-  const savedCards = localStorage.getItem(STORAGE_KEY);
-  const savedLibraryVersion = localStorage.getItem(LIBRARY_VERSION_KEY);
+  let savedCards = localStorage.getItem(STORAGE_KEY);
+  let savedLibraryVersion = localStorage.getItem(LIBRARY_VERSION_KEY);
+  let migratedFromLegacy = false;
+
+  if (!savedCards && shouldMigrateLegacyStorage()) {
+    savedCards = localStorage.getItem(LEGACY_STORAGE_KEY);
+    savedLibraryVersion = localStorage.getItem(LEGACY_LIBRARY_VERSION_KEY);
+    migratedFromLegacy = Boolean(savedCards);
+  }
 
   if (!savedCards) {
     const initialCards = cloneCards(builtInCards);
@@ -176,6 +203,11 @@ function loadCards() {
         localStorage.setItem(LIBRARY_VERSION_KEY, BUILT_IN_LIBRARY_VERSION);
         localStorage.setItem(STORAGE_KEY, JSON.stringify(upgradedLibrary));
         return upgradedLibrary;
+      }
+
+      if (migratedFromLegacy) {
+        localStorage.setItem(LIBRARY_VERSION_KEY, BUILT_IN_LIBRARY_VERSION);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(savedLibrary));
       }
 
       return savedLibrary;
@@ -716,12 +748,21 @@ function speakCard(card = getCurrentCard()) {
 }
 
 function exportCards() {
-  const data = JSON.stringify(cards, null, 2);
+  const includeProgress = window.confirm(
+    "\u8981\u628a\u300c\u5df2\u5b78\u6703\u300d\u9032\u5ea6\u4e00\u8d77\u532f\u51fa\u55ce\uff1f\n\n" +
+      "\u78ba\u5b9a\uff1a\u81ea\u5df1\u5099\u4efd\uff0c\u4fdd\u7559\u5df2\u5b78\u6703\n" +
+      "\u53d6\u6d88\uff1a\u7d66\u5225\u4eba\uff0c\u5168\u90e8\u6539\u6210\u672a\u5b78\u6703",
+  );
+  const exportedCards = cards.map((card) => ({
+    ...card,
+    learned: includeProgress ? Boolean(card.learned) : false,
+  }));
+  const data = JSON.stringify(exportedCards, null, 2);
   const blob = new Blob([data], { type: "application/json" });
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url;
-  link.download = `flipwords-backup-${new Date().toISOString().slice(0, 10)}.json`;
+  link.download = `flipwords-${includeProgress ? "backup" : "share"}-${new Date().toISOString().slice(0, 10)}.json`;
   link.click();
   URL.revokeObjectURL(url);
 }
