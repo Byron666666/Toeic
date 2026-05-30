@@ -3,7 +3,7 @@ const LEGACY_LIBRARY_VERSION_KEY = "flipwords.libraryVersion.v1";
 const STORAGE_SCOPE = getStorageScope();
 const STORAGE_KEY = `flipwords.${STORAGE_SCOPE}.cards.v2`;
 const LIBRARY_VERSION_KEY = `flipwords.${STORAGE_SCOPE}.libraryVersion.v2`;
-const BUILT_IN_LIBRARY_VERSION = "flipwords-backup-2026-05-30-2-json-4722-repaired-import";
+const BUILT_IN_LIBRARY_VERSION = "flipwords-backup-2026-05-30-2-json-4722-direct-import";
 const DEMO_CARD_IDS = new Set(["seed-sustainable", "seed-improve", "seed-confident"]);
 
 const fallbackCards = [
@@ -111,6 +111,35 @@ let currentIndex = 0;
 let isFlipped = false;
 let availableVoices = [];
 let voiceStatusTimer = 0;
+
+const PREFERRED_ENGLISH_VOICE_NAMES = [
+  "google us english",
+  "samantha",
+  "alex",
+  "ava",
+  "allison",
+  "susan",
+  "tom",
+  "victoria",
+  "microsoft aria",
+  "microsoft guy",
+];
+
+const AVOID_ENGLISH_VOICE_NAMES = [
+  "bad news",
+  "bahh",
+  "bells",
+  "boing",
+  "bubbles",
+  "cellos",
+  "deranged",
+  "good news",
+  "hysterical",
+  "pipe organ",
+  "trinoids",
+  "whisper",
+  "zarvox",
+];
 
 function getStorageScope() {
   const host = String(window.location.hostname || "local").toLowerCase();
@@ -703,11 +732,42 @@ function cacheVoices() {
 }
 
 function getEnglishVoice() {
-  return (
-    availableVoices.find((voice) => voice.lang.toLowerCase() === "en-us") ||
-    availableVoices.find((voice) => voice.lang.toLowerCase().startsWith("en-")) ||
-    null
-  );
+  return availableVoices
+    .filter((voice) => voice.lang.toLowerCase().startsWith("en-"))
+    .map((voice) => ({ voice, score: scoreEnglishVoice(voice) }))
+    .sort((a, b) => b.score - a.score)[0]?.voice || null;
+}
+
+function scoreEnglishVoice(voice) {
+  const name = voice.name.toLowerCase();
+  const lang = voice.lang.toLowerCase();
+  let score = 0;
+
+  if (lang === "en-us") {
+    score += 100;
+  } else if (lang.startsWith("en-")) {
+    score += 40;
+  }
+
+  PREFERRED_ENGLISH_VOICE_NAMES.forEach((preferredName, index) => {
+    if (name.includes(preferredName)) {
+      score += 80 - index * 4;
+    }
+  });
+
+  if (name.includes("natural") || name.includes("premium") || name.includes("enhanced")) {
+    score += 20;
+  }
+
+  if (voice.localService) {
+    score += 8;
+  }
+
+  if (AVOID_ENGLISH_VOICE_NAMES.some((avoidName) => name.includes(avoidName))) {
+    score -= 200;
+  }
+
+  return score;
 }
 
 function setVoiceStatus(message, persist = false) {
