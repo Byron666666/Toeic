@@ -2,17 +2,6 @@
 
 FlipWords 是一個靜態網頁版多益單字卡工具，用來瀏覽、搜尋、複習與管理 TOEIC 單字。
 
-## 目前資料狀態
-
-- 主要單字來源：`vocab-data.js`
-- 目前內建單字數：5018 筆
-- 英文單字重複：0 組
-- 已刪除英文重複資料：34 筆
-- `id` 重複：仍保留，因為目前只依英文單字去重
-- 原始 JSON 來源：`C:\Users\TY_HONG\Downloads\flipwords-backup-2026-05-30 (2).json`
-- 去重前備份：`C:\Users\TY_HONG\Downloads\flipwords-backup-2026-05-30 (2).json.dedupe-backup-20260601-014304`
-- 去重報告：`duplicate-words-in-json.md`
-
 ## 功能
 
 - 單字卡正反面複習
