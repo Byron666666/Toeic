@@ -3,7 +3,7 @@ const LEGACY_LIBRARY_VERSION_KEY = "flipwords.libraryVersion.v1";
 const STORAGE_SCOPE = getStorageScope();
 const STORAGE_KEY = `flipwords.${STORAGE_SCOPE}.cards.v2`;
 const LIBRARY_VERSION_KEY = `flipwords.${STORAGE_SCOPE}.libraryVersion.v2`;
-const BUILT_IN_LIBRARY_VERSION = "flipwords-backup-2026-05-30-2-json-4722-direct-import";
+const BUILT_IN_LIBRARY_VERSION = "flipwords-backup-2026-05-30-2-json-5018-deduped-replace";
 const DEMO_CARD_IDS = new Set(["seed-sustainable", "seed-improve", "seed-confident"]);
 
 const fallbackCards = [
@@ -227,8 +227,7 @@ function loadCards() {
         .filter(Boolean);
 
       if (savedLibraryVersion !== BUILT_IN_LIBRARY_VERSION) {
-        savedLibrary = savedLibrary.filter((card) => !DEMO_CARD_IDS.has(card.id));
-        const upgradedLibrary = mergeBuiltInCards(savedLibrary);
+        const upgradedLibrary = cloneCards(builtInCards);
         localStorage.setItem(LIBRARY_VERSION_KEY, BUILT_IN_LIBRARY_VERSION);
         localStorage.setItem(STORAGE_KEY, JSON.stringify(upgradedLibrary));
         return upgradedLibrary;
