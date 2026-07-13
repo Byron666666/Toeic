@@ -17,6 +17,7 @@ const fallbackCards = [
     exampleMeaning: "這家飯店改用永續的清潔用品。",
     synonyms: "durable / renewable",
     tag: "A 基礎單字",
+    review: false,
     learned: false,
     createdAt: "2026-01-01T00:00:00.000Z",
   },
@@ -30,6 +31,7 @@ const fallbackCards = [
     exampleMeaning: "新的檢查清單幫助提升服務速度。",
     synonyms: "enhance / upgrade",
     tag: "A 基礎單字",
+    review: false,
     learned: false,
     createdAt: "2026-01-01T00:00:00.000Z",
   },
@@ -43,6 +45,7 @@ const fallbackCards = [
     exampleMeaning: "業務代表在電話中聽起來很有自信。",
     synonyms: "assured / self-reliant",
     tag: "C 形容副詞",
+    review: false,
     learned: false,
     createdAt: "2026-01-01T00:00:00.000Z",
   },
@@ -57,10 +60,13 @@ const builtInCards = normalizeBuiltInCards(
 
 const elements = {
   totalCount: document.querySelector("#totalCount"),
+  reviewCount: document.querySelector("#reviewCount"),
   learnedCount: document.querySelector("#learnedCount"),
   unlearnedPileButton: document.querySelector("#unlearnedPileButton"),
+  reviewPileButton: document.querySelector("#reviewPileButton"),
   learnedPileButton: document.querySelector("#learnedPileButton"),
   unlearnedPileCount: document.querySelector("#unlearnedPileCount"),
+  reviewPileCount: document.querySelector("#reviewPileCount"),
   learnedPileCount: document.querySelector("#learnedPileCount"),
   activePileLabel: document.querySelector("#activePileLabel"),
   visibleCount: document.querySelector("#visibleCount"),
@@ -82,6 +88,7 @@ const elements = {
   previousButton: document.querySelector("#previousButton"),
   nextButton: document.querySelector("#nextButton"),
   shuffleButton: document.querySelector("#shuffleButton"),
+  reviewToggle: document.querySelector("#reviewToggle"),
   learnedToggle: document.querySelector("#learnedToggle"),
   wordForm: document.querySelector("#wordForm"),
   editingId: document.querySelector("#editingId"),
@@ -272,6 +279,7 @@ function sanitizeCard(card, fallbackId) {
   const autoDetails = getAutoDetails(word) || {};
   const phonetic = String(card.phonetic || card.kk || pronunciation?.kk || autoDetails.phonetic || "").trim();
   const speakText = String(card.speakText || pronunciation?.speak || word).trim();
+  const review = Boolean(card.review);
 
   return {
     id: String(card.id || fallbackId || createId()),
@@ -284,7 +292,8 @@ function sanitizeCard(card, fallbackId) {
     exampleMeaning: String(card.exampleMeaning || card.exampleChinese || autoDetails.exampleMeaning || "").trim(),
     synonyms: normalizeSynonyms(card.synonyms || extraEnrichment.synonyms || autoDetails.synonyms || ""),
     tag: normalizeTag(String(card.tag || "")),
-    learned: Boolean(card.learned),
+    review,
+    learned: Boolean(card.learned) && !review,
     createdAt: card.createdAt || new Date().toISOString(),
   };
 }
@@ -313,7 +322,8 @@ function mergeBuiltInCards(existingCards) {
 
     return {
       ...builtInCard,
-      learned: Boolean(savedCard.learned),
+      review: Boolean(savedCard.review),
+      learned: Boolean(savedCard.learned) && !savedCard.review,
       createdAt: savedCard.createdAt || builtInCard.createdAt,
     };
   });
@@ -339,15 +349,39 @@ function normalizeTag(tag) {
 }
 
 function getPileCounts() {
-  const learned = cards.filter((card) => card.learned).length;
-  return {
-    learned,
-    unlearned: cards.length - learned,
+  const counts = {
+    unlearned: 0,
+    review: 0,
+    learned: 0,
   };
+
+  cards.forEach((card) => {
+    counts[getCardPile(card)] += 1;
+  });
+
+  return counts;
+}
+
+function getCardPile(card) {
+  if (card.review) {
+    return "review";
+  }
+
+  if (card.learned) {
+    return "learned";
+  }
+
+  return "unlearned";
 }
 
 function getPileLabel(pile = activePile) {
-  return pile === "learned" ? "已學會牌堆" : "未學會牌堆";
+  const labels = {
+    unlearned: "未學會牌堆",
+    review: "重點複習牌堆",
+    learned: "已學會牌堆",
+  };
+
+  return labels[pile] || labels.unlearned;
 }
 
 function getCurrentCard() {
@@ -362,7 +396,7 @@ function getFilters() {
 }
 
 function cardMatchesActivePile(card) {
-  return activePile === "learned" ? Boolean(card.learned) : !card.learned;
+  return getCardPile(card) === activePile;
 }
 
 function applyFilters() {
@@ -397,10 +431,12 @@ function renderPileControls() {
   const counts = getPileCounts();
   const pileButtons = [
     ["unlearned", elements.unlearnedPileButton],
+    ["review", elements.reviewPileButton],
     ["learned", elements.learnedPileButton],
   ];
 
   elements.unlearnedPileCount.textContent = counts.unlearned;
+  elements.reviewPileCount.textContent = counts.review;
   elements.learnedPileCount.textContent = counts.learned;
   elements.activePileLabel.textContent = getPileLabel();
 
@@ -412,14 +448,15 @@ function renderPileControls() {
 }
 
 function renderStats() {
-  const learnedCards = cards.filter((card) => card.learned).length;
+  const counts = getPileCounts();
   const currentPosition = filteredCards.length ? currentIndex + 1 : 0;
   const progress = filteredCards.length
     ? Math.round((currentPosition / filteredCards.length) * 100)
     : 0;
 
   elements.totalCount.textContent = cards.length;
-  elements.learnedCount.textContent = learnedCards;
+  elements.reviewCount.textContent = counts.review;
+  elements.learnedCount.textContent = counts.learned;
   elements.visibleCount.textContent = `${getPileLabel()}：${filteredCards.length} 張`;
   elements.positionText.textContent = `${currentPosition} / ${filteredCards.length}`;
   elements.progressFill.style.width = `${progress}%`;
@@ -446,6 +483,8 @@ function renderCurrentCard() {
     elements.cardExample.textContent = "";
     elements.cardExampleMeaning.textContent = "";
     elements.cardSynonyms.textContent = "";
+    elements.reviewToggle.checked = false;
+    elements.reviewToggle.disabled = true;
     elements.learnedToggle.checked = false;
     elements.learnedToggle.disabled = true;
     elements.previousButton.disabled = true;
@@ -470,6 +509,8 @@ function renderCurrentCard() {
   elements.cardSynonyms.textContent = card.synonyms ? `同義詞：${normalizeSynonyms(card.synonyms)}` : "";
   elements.cardExample.textContent = card.example || "尚未填寫例句";
   elements.cardExampleMeaning.textContent = card.exampleMeaning || "";
+  elements.reviewToggle.checked = Boolean(card.review);
+  elements.reviewToggle.disabled = false;
   elements.learnedToggle.checked = Boolean(card.learned);
   elements.learnedToggle.disabled = false;
   elements.previousButton.disabled = filteredCards.length <= 1;
@@ -519,7 +560,8 @@ function renderList() {
     const row = document.createElement("article");
     row.className = "word-row";
     row.classList.toggle("is-active", currentCard?.id === card.id);
-    row.classList.toggle("is-learned", Boolean(card.learned));
+    row.classList.toggle("is-review", getCardPile(card) === "review");
+    row.classList.toggle("is-learned", getCardPile(card) === "learned");
 
     const content = document.createElement("button");
     content.className = "word-row-main";
@@ -686,6 +728,7 @@ function upsertCard(event) {
     exampleMeaning: elements.exampleMeaningInput.value.trim(),
     synonyms: normalizeSynonyms(elements.synonymsInput.value),
     tag: normalizeTag(elements.tagInput.value),
+    review: existingCard?.review || false,
     learned: existingCard?.learned || false,
     createdAt: existingCard?.createdAt || new Date().toISOString(),
   };
@@ -708,18 +751,32 @@ function upsertCard(event) {
   render();
 }
 
-function updateLearnedState() {
+function updateCardState(nextPile) {
   const currentCard = getCurrentCard();
   if (!currentCard) {
     return;
   }
 
   cards = cards.map((card) =>
-    card.id === currentCard.id ? { ...card, learned: elements.learnedToggle.checked } : card,
+    card.id === currentCard.id
+      ? {
+          ...card,
+          review: nextPile === "review",
+          learned: nextPile === "learned",
+        }
+      : card,
   );
   saveCards();
   isFlipped = false;
   render();
+}
+
+function updateReviewState() {
+  updateCardState(elements.reviewToggle.checked ? "review" : "unlearned");
+}
+
+function updateLearnedState() {
+  updateCardState(elements.learnedToggle.checked ? "learned" : "unlearned");
 }
 
 function cacheVoices() {
@@ -812,12 +869,13 @@ function speakCard(card = getCurrentCard()) {
 
 function exportCards() {
   const includeProgress = window.confirm(
-    "\u8981\u628a\u300c\u5df2\u5b78\u6703\u300d\u9032\u5ea6\u4e00\u8d77\u532f\u51fa\u55ce\uff1f\n\n" +
-      "\u78ba\u5b9a\uff1a\u81ea\u5df1\u5099\u4efd\uff0c\u4fdd\u7559\u5df2\u5b78\u6703\n" +
-      "\u53d6\u6d88\uff1a\u7d66\u5225\u4eba\uff0c\u5168\u90e8\u6539\u6210\u672a\u5b78\u6703",
+    "要把「重點複習」與「已學會」進度一起匯出嗎？\n\n" +
+      "確定：自己備份，保留目前的學習狀態\n" +
+      "取消：分享給別人，全部改成未學會",
   );
   const exportedCards = cards.map((card) => ({
     ...card,
+    review: includeProgress ? Boolean(card.review) : false,
     learned: includeProgress ? Boolean(card.learned) : false,
   }));
   const data = JSON.stringify(exportedCards, null, 2);
@@ -867,6 +925,7 @@ function importCards(event) {
 }
 
 elements.unlearnedPileButton.addEventListener("click", () => setActivePile("unlearned"));
+elements.reviewPileButton.addEventListener("click", () => setActivePile("review"));
 elements.learnedPileButton.addEventListener("click", () => setActivePile("learned"));
 elements.flashcard.addEventListener("click", () => toggleFlip());
 elements.flashcard.addEventListener("keydown", (event) => {
@@ -880,6 +939,7 @@ elements.pronounceButton.addEventListener("click", () => speakCard());
 elements.previousButton.addEventListener("click", () => moveCard(-1));
 elements.nextButton.addEventListener("click", () => moveCard(1));
 elements.shuffleButton.addEventListener("click", shuffleCard);
+elements.reviewToggle.addEventListener("change", updateReviewState);
 elements.learnedToggle.addEventListener("change", updateLearnedState);
 elements.wordForm.addEventListener("submit", upsertCard);
 elements.cancelEditButton.addEventListener("click", resetForm);
