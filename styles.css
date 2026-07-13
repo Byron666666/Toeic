@@ -129,7 +129,7 @@ button:disabled {
 
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(5rem, 1fr));
+  grid-template-columns: repeat(3, minmax(4.6rem, 1fr));
   border: 1px solid var(--line);
   border-radius: var(--radius);
   overflow: hidden;
@@ -154,7 +154,7 @@ button:disabled {
 
 .pile-switcher {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 0.65rem;
   margin: -0.2rem 0 1rem;
 }
@@ -450,20 +450,31 @@ label span,
   color: var(--primary-strong);
 }
 
-.learned-toggle {
+.status-toggles {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-top: 1rem;
+}
+
+.status-toggle {
   display: flex;
   align-items: center;
   gap: 0.6rem;
   width: fit-content;
-  margin-top: 1rem;
   color: var(--ink);
   font-weight: 750;
 }
 
-.learned-toggle input {
+.status-toggle input {
   width: 1.15rem;
   height: 1.15rem;
   accent-color: var(--primary);
+}
+
+.review-toggle input {
+  accent-color: var(--gold);
 }
 
 .voice-status {
@@ -605,6 +616,10 @@ select:focus {
 }
 
 .word-row.is-learned .learned-dot {
+  background: var(--primary-strong);
+}
+
+.word-row.is-review .learned-dot {
   background: var(--gold);
 }
 
@@ -664,6 +679,10 @@ select:focus {
   .primary-button,
   .ghost-button {
     flex: 1 1 auto;
+  }
+
+  .pile-switcher {
+    grid-template-columns: 1fr;
   }
 
   .form-grid,
