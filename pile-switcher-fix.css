@@ -1,0 +1,78 @@
+/* Keep the three review pile buttons visible and evenly spaced. */
+.pile-switcher {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  width: 100%;
+  overflow: visible !important;
+}
+
+.pile-switcher > .pile-button,
+#unlearnedPileButton,
+#reviewPileButton,
+#learnedPileButton {
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  min-width: 0;
+}
+
+#unlearnedPileButton {
+  grid-column: 1;
+}
+
+#reviewPileButton {
+  grid-column: 2;
+}
+
+#learnedPileButton {
+  grid-column: 3;
+}
+
+/* Preserve the intended card action order after loading responsive-layout.css. */
+.controls {
+  grid-template-columns: 3rem minmax(0, 1fr) minmax(0, 1fr) 3rem minmax(0, 1fr);
+}
+
+#previousButton { grid-column: 1; }
+#pronounceButton { grid-column: 2; }
+#flipButton { grid-column: 3; }
+#nextButton { grid-column: 4; }
+#shuffleButton { grid-column: 5; }
+
+@media (max-width: 700px) {
+  .pile-switcher {
+    gap: 0.45rem;
+  }
+
+  .pile-switcher > .pile-button {
+    min-height: 4.25rem;
+    padding: 0.55rem 0.3rem;
+    font-size: clamp(0.78rem, 3.6vw, 0.95rem);
+  }
+
+  .controls {
+    grid-template-columns: 3rem minmax(0, 1fr) minmax(0, 1fr) 3rem;
+  }
+
+  #previousButton { grid-column: 1; }
+  #pronounceButton { grid-column: 2; }
+  #flipButton { grid-column: 3; }
+  #nextButton { grid-column: 4; }
+  #shuffleButton {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+}
+
+@media (max-width: 390px) {
+  .pile-switcher > .pile-button {
+    min-height: 4rem;
+    font-size: 0.76rem;
+  }
+
+  .pile-button strong {
+    min-width: 1.8rem;
+    min-height: 1.6rem;
+    padding-inline: 0.35rem;
+  }
+}
