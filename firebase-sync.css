@@ -1,9 +1,24 @@
+.topbar-actions {
+  flex: 1;
+  justify-content: flex-end;
+}
+
+.topbar-actions > [hidden],
+.stats-grid[hidden],
+.companion-line[hidden],
+.google-sign-in-button[hidden],
+.signed-in-account[hidden] {
+  display: none !important;
+}
+
 .account-controls {
+  order: 10;
   display: grid;
-  grid-template-columns: auto;
-  gap: 0.3rem;
+  grid-template-columns: minmax(0, auto);
+  gap: 0.25rem;
   align-items: center;
-  min-width: 10rem;
+  min-width: 10.5rem;
+  margin-left: 0.25rem;
 }
 
 .google-sign-in-button,
@@ -17,7 +32,7 @@
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: var(--radius);
   color: var(--ink);
-  background: rgba(18, 25, 35, 0.86);
+  background: rgba(18, 25, 35, 0.9);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
   font-weight: 800;
 }
@@ -46,13 +61,10 @@
   font-weight: 900;
 }
 
-.signed-in-account[hidden] {
-  display: none;
-}
-
 .signed-in-account {
   justify-content: flex-start;
-  max-width: 17rem;
+  width: 100%;
+  max-width: 16rem;
 }
 
 .account-avatar {
@@ -133,6 +145,10 @@
   background: #ff7768;
 }
 
+.status-toggle {
+  min-height: 3.75rem;
+}
+
 @keyframes cloud-status-pulse {
   50% {
     opacity: 0.35;
@@ -141,9 +157,17 @@
 }
 
 @media (max-width: 920px) {
+  .topbar-actions {
+    width: 100%;
+    justify-content: stretch;
+  }
+
+  .theme-picker,
+  .sound-button,
   .account-controls {
     flex: 1 1 100%;
     width: 100%;
+    margin-left: 0;
   }
 
   .google-sign-in-button,
