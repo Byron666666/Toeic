@@ -1,0 +1,19 @@
+html,
+body {
+  touch-action: pan-x pan-y;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+button,
+a,
+label,
+select,
+input,
+textarea,
+.flashcard,
+.pile-button,
+.status-toggle,
+.word-row-main {
+  touch-action: manipulation;
+}
