@@ -1,0 +1,154 @@
+.account-controls {
+  display: grid;
+  grid-template-columns: auto;
+  gap: 0.3rem;
+  align-items: center;
+  min-width: 10rem;
+}
+
+.google-sign-in-button,
+.signed-in-account {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  min-height: 2.75rem;
+  padding: 0.4rem 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: var(--radius);
+  color: var(--ink);
+  background: rgba(18, 25, 35, 0.86);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+  font-weight: 800;
+}
+
+.google-sign-in-button:hover {
+  border-color: var(--theme-a);
+  transform: translateY(-1px);
+}
+
+.google-sign-in-button:disabled,
+.account-sign-out:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+.google-mark {
+  display: grid;
+  place-items: center;
+  width: 1.7rem;
+  height: 1.7rem;
+  border-radius: 50%;
+  color: #4285f4;
+  background: #ffffff;
+  font-family: Arial, sans-serif;
+  font-size: 1rem;
+  font-weight: 900;
+}
+
+.signed-in-account[hidden] {
+  display: none;
+}
+
+.signed-in-account {
+  justify-content: flex-start;
+  max-width: 17rem;
+}
+
+.account-avatar {
+  flex: 0 0 auto;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background: var(--surface-strong);
+  object-fit: cover;
+}
+
+.account-avatar:not([src]) {
+  visibility: hidden;
+  width: 0;
+}
+
+.account-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.account-sign-out {
+  flex: 0 0 auto;
+  margin-left: auto;
+  padding: 0.35rem 0.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 7px;
+  color: var(--muted);
+  background: rgba(255, 255, 255, 0.05);
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.account-sign-out:hover {
+  color: var(--ink);
+  border-color: var(--theme-a);
+}
+
+.cloud-sync-status {
+  display: block;
+  min-height: 1rem;
+  padding: 0 0.25rem;
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 750;
+  text-align: center;
+}
+
+.cloud-sync-status::before {
+  content: "";
+  display: inline-block;
+  width: 0.48rem;
+  height: 0.48rem;
+  margin-right: 0.35rem;
+  border-radius: 50%;
+  background: #8292a3;
+  vertical-align: 0.05rem;
+}
+
+.cloud-sync-status[data-state="synced"]::before {
+  background: #64d6a3;
+  box-shadow: 0 0 10px rgba(100, 214, 163, 0.65);
+}
+
+.cloud-sync-status[data-state="syncing"]::before,
+.cloud-sync-status[data-state="pending"]::before {
+  background: #f0bf52;
+  animation: cloud-status-pulse 1s ease-in-out infinite;
+}
+
+.cloud-sync-status[data-state="error"] {
+  color: #ffb3aa;
+}
+
+.cloud-sync-status[data-state="error"]::before {
+  background: #ff7768;
+}
+
+@keyframes cloud-status-pulse {
+  50% {
+    opacity: 0.35;
+    transform: scale(0.75);
+  }
+}
+
+@media (max-width: 920px) {
+  .account-controls {
+    flex: 1 1 100%;
+    width: 100%;
+  }
+
+  .google-sign-in-button,
+  .signed-in-account {
+    width: 100%;
+    max-width: none;
+  }
+}
