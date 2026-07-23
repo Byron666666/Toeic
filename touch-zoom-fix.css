@@ -1,3 +1,5 @@
+@import url("responsive-layout.css");
+
 html,
 body {
   touch-action: pan-x pan-y;
