@@ -1,0 +1,560 @@
+/* Responsive layout polish and mobile overflow fixes */
+
+:root {
+  --page-gutter: clamp(0.75rem, 2.5vw, 1.5rem);
+  --panel-padding: clamp(0.9rem, 2vw, 1.35rem);
+}
+
+html,
+body {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: clip;
+}
+
+img,
+svg,
+canvas {
+  max-width: 100%;
+}
+
+button,
+input,
+textarea,
+select,
+.flashcard,
+.status-toggle,
+.pile-button,
+.word-row-main {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.topbar,
+.app-shell {
+  width: min(1240px, calc(100% - (var(--page-gutter) * 2)));
+}
+
+.topbar {
+  gap: clamp(0.85rem, 2vw, 1.5rem);
+  padding-top: clamp(0.9rem, 2.5vw, 1.5rem);
+}
+
+.brand-lockup {
+  flex: 0 0 auto;
+  min-width: 0;
+}
+
+.brand-lockup > div {
+  min-width: 0;
+}
+
+.topbar-actions {
+  min-width: 0;
+  gap: 0.65rem;
+}
+
+.theme-picker {
+  min-width: 12.5rem;
+}
+
+.theme-picker select {
+  min-width: 0;
+}
+
+.account-controls {
+  min-width: 11rem;
+}
+
+.app-shell {
+  grid-template-columns: minmax(0, 1.15fr) minmax(320px, 0.85fr);
+  gap: clamp(0.9rem, 2vw, 1.35rem);
+  margin-bottom: clamp(1rem, 3vw, 2.5rem);
+}
+
+.study-panel,
+.library-panel {
+  min-width: 0;
+  padding: var(--panel-padding);
+  overflow: hidden;
+}
+
+.panel-heading {
+  min-width: 0;
+  align-items: center;
+}
+
+.panel-heading > div {
+  min-width: 0;
+}
+
+.panel-heading h2 {
+  font-size: clamp(1.35rem, 2.2vw, 1.75rem);
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+.study-hud {
+  grid-template-columns: auto auto minmax(0, 1fr);
+}
+
+.hud-chip,
+.goal-meter {
+  min-width: 0;
+}
+
+.goal-label,
+#goalText {
+  white-space: nowrap;
+}
+
+.goal-track {
+  min-width: 3rem;
+}
+
+.pile-switcher {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.pile-button {
+  min-width: 0;
+}
+
+.pile-button span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.progress-row {
+  min-width: 0;
+}
+
+#activePileLabel,
+#positionText {
+  min-width: 0;
+}
+
+.flashcard {
+  min-width: 0;
+  min-height: clamp(24rem, 56vh, 30rem);
+}
+
+.flashcard-face {
+  min-width: 0;
+  max-width: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  padding: clamp(1.15rem, 4vw, 2.4rem);
+}
+
+.card-tag,
+.card-word,
+.card-meaning,
+.card-phonetic,
+.card-pos,
+.card-related,
+.card-example,
+.card-example-meaning,
+.card-note {
+  max-width: 100%;
+}
+
+.card-word,
+.card-meaning,
+.card-phonetic,
+.card-pos,
+.card-related,
+.card-example,
+.card-example-meaning {
+  overflow-wrap: anywhere;
+  word-break: normal;
+}
+
+.card-word {
+  width: 100%;
+  white-space: normal;
+  hyphens: auto;
+  font-size: clamp(2.15rem, 5vw, 2.95rem);
+  line-height: 1.08;
+}
+
+.card-word:not(.is-phrase) {
+  white-space: nowrap;
+}
+
+.card-word.is-phrase {
+  white-space: normal;
+  font-size: clamp(1.8rem, 4vw, 2.35rem);
+  line-height: 1.15;
+}
+
+.card-word.is-long-phrase {
+  font-size: clamp(1.35rem, 3vw, 1.8rem);
+  line-height: 1.22;
+}
+
+.card-meaning {
+  width: 100%;
+  font-size: clamp(1.55rem, 3.6vw, 2.15rem);
+  line-height: 1.22;
+}
+
+.card-phonetic,
+.card-pos {
+  width: 100%;
+  text-align: center;
+}
+
+.controls {
+  display: grid;
+  grid-template-columns: 3rem repeat(3, minmax(0, 1fr)) 3rem;
+  width: 100%;
+}
+
+.controls > button {
+  min-width: 0;
+  width: 100%;
+  padding-inline: 0.7rem;
+}
+
+.controls .icon-button {
+  width: 3rem;
+  padding: 0;
+}
+
+.keyboard-hint {
+  overflow-wrap: anywhere;
+}
+
+.status-toggles {
+  gap: 0.7rem;
+}
+
+.status-toggle {
+  min-width: 0;
+}
+
+.toggle-copy {
+  min-width: 0;
+}
+
+.toggle-copy strong {
+  overflow-wrap: anywhere;
+}
+
+.form-grid,
+.filters {
+  min-width: 0;
+}
+
+.form-grid > label,
+.filters > label {
+  min-width: 0;
+}
+
+input,
+textarea,
+select {
+  min-width: 0;
+}
+
+.card-list {
+  min-width: 0;
+  max-height: min(46rem, 70vh);
+  scrollbar-gutter: stable;
+}
+
+.word-row,
+.word-row-main,
+.list-word,
+.row-actions {
+  min-width: 0;
+}
+
+.word-row {
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.list-word strong,
+.list-phonetic,
+.list-meta {
+  max-width: 100%;
+}
+
+.action-toast,
+.achievement-popover {
+  width: min(92vw, 28rem);
+  max-width: calc(100vw - 1.5rem);
+  justify-content: center;
+  text-align: center;
+}
+
+@media (max-width: 1080px) {
+  .topbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .topbar-actions {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(11rem, auto);
+    width: 100%;
+    justify-content: stretch;
+  }
+
+  .theme-picker,
+  .account-controls {
+    width: 100%;
+    min-width: 0;
+    margin-left: 0;
+  }
+}
+
+@media (max-width: 920px) {
+  .app-shell {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .study-panel {
+    position: static;
+  }
+
+  .card-list {
+    max-height: none;
+    overflow: visible;
+    padding-right: 0;
+  }
+
+  .flashcard {
+    min-height: clamp(23rem, 58vh, 29rem);
+  }
+}
+
+@media (max-width: 700px) {
+  :root {
+    --page-gutter: 0.75rem;
+    --panel-padding: 0.9rem;
+  }
+
+  .topbar-actions {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+
+  .account-controls {
+    grid-column: 1 / -1;
+  }
+
+  .theme-picker,
+  .sound-button,
+  .google-sign-in-button,
+  .signed-in-account {
+    width: 100%;
+  }
+
+  .brand-mark {
+    width: 2.7rem;
+    height: 2.7rem;
+  }
+
+  .topbar h1 {
+    font-size: clamp(1.75rem, 8vw, 2.15rem);
+  }
+
+  .study-hud {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .goal-meter {
+    grid-column: 1 / -1;
+  }
+
+  .pile-switcher {
+    gap: 0.45rem;
+  }
+
+  .pile-button {
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.35rem;
+    min-height: 4.4rem;
+    padding: 0.55rem 0.35rem;
+    text-align: center;
+  }
+
+  .pile-button strong {
+    min-width: 2rem;
+    min-height: 1.75rem;
+    padding-inline: 0.4rem;
+  }
+
+  .progress-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .progress-track {
+    grid-column: 1 / -1;
+  }
+
+  .flashcard {
+    min-height: 24rem;
+  }
+
+  .flashcard-face {
+    gap: 0.8rem;
+    padding: 1.1rem;
+  }
+
+  .card-word,
+  .card-word:not(.is-phrase) {
+    white-space: normal;
+    font-size: clamp(1.85rem, 9vw, 2.45rem);
+    overflow-wrap: anywhere;
+  }
+
+  .card-word.is-phrase {
+    font-size: clamp(1.55rem, 7.5vw, 2rem);
+  }
+
+  .card-word.is-long-phrase {
+    font-size: clamp(1.15rem, 5.8vw, 1.55rem);
+    line-height: 1.25;
+  }
+
+  .card-meaning {
+    font-size: clamp(1.35rem, 6vw, 1.75rem);
+  }
+
+  .card-phonetic {
+    font-size: 1rem;
+  }
+
+  .card-pos {
+    font-size: 1.05rem;
+  }
+
+  .card-example {
+    font-size: 1rem;
+    line-height: 1.55;
+  }
+
+  .card-example-meaning,
+  .card-related {
+    font-size: 0.92rem;
+    line-height: 1.5;
+  }
+
+  .controls {
+    grid-template-columns: 3rem minmax(0, 1fr) minmax(0, 1fr) 3rem;
+    gap: 0.5rem;
+  }
+
+  #shuffleButton {
+    grid-column: 1 / -1;
+  }
+
+  .controls > button {
+    min-height: 3rem;
+  }
+
+  .status-toggles {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  .status-toggle {
+    min-height: 3.8rem;
+    padding: 0.7rem;
+  }
+
+  .toggle-icon {
+    font-size: 1.25rem;
+  }
+
+  .form-grid,
+  .filters {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .word-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .list-word strong,
+  .list-phonetic,
+  .list-meta {
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+    overflow-wrap: anywhere;
+  }
+
+  .row-actions {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    width: 100%;
+  }
+
+  .row-actions button {
+    width: 100%;
+    min-height: 2.75rem;
+  }
+}
+
+@media (max-width: 430px) {
+  .topbar-actions {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .account-controls {
+    grid-column: auto;
+  }
+
+  .study-hud {
+    gap: 0.5rem;
+  }
+
+  .hud-chip,
+  .goal-meter {
+    padding: 0.5rem 0.6rem;
+  }
+
+  .goal-meter {
+    grid-template-columns: 1fr auto;
+  }
+
+  .goal-track {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+
+  .pile-button {
+    font-size: 0.85rem;
+  }
+
+  .flashcard {
+    min-height: 23rem;
+  }
+
+  .status-toggles {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .keyboard-hint {
+    font-size: 0.72rem;
+    line-height: 1.55;
+  }
+
+  .panel-heading {
+    align-items: flex-start;
+  }
+}
+
+@media (max-height: 700px) and (orientation: landscape) {
+  .flashcard {
+    min-height: 20rem;
+  }
+
+  .flashcard-face {
+    justify-content: flex-start;
+  }
+}
