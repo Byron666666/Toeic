@@ -39,6 +39,75 @@
 #nextButton { grid-column: 4; }
 #shuffleButton { grid-column: 5; }
 
+/* Tactile feedback for the main card controls. */
+.controls > button {
+  position: relative;
+  overflow: hidden;
+  transform: translateY(0) scale(1);
+  transform-origin: center;
+  transition:
+    transform 110ms ease,
+    box-shadow 110ms ease,
+    filter 110ms ease,
+    border-color 110ms ease;
+  will-change: transform;
+}
+
+.controls > button::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: rgba(255, 255, 255, 0.16);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 90ms ease;
+}
+
+.controls > .primary-button {
+  box-shadow:
+    0 5px 0 rgba(103, 52, 30, 0.52),
+    0 10px 22px var(--theme-glow) !important;
+}
+
+.controls > .icon-button {
+  box-shadow:
+    0 5px 0 rgba(0, 0, 0, 0.38),
+    0 9px 18px rgba(0, 0, 0, 0.24);
+}
+
+.controls > button:hover:not(:disabled) {
+  transform: translateY(-1px) scale(1.01);
+  filter: brightness(1.05);
+}
+
+.controls > button:active:not(:disabled) {
+  transform: translateY(4px) scale(0.975);
+  filter: brightness(0.92) saturate(0.95);
+  transition-duration: 35ms;
+}
+
+.controls > .primary-button:active:not(:disabled) {
+  box-shadow:
+    0 1px 0 rgba(103, 52, 30, 0.48),
+    0 3px 8px var(--theme-glow) !important;
+}
+
+.controls > .icon-button:active:not(:disabled) {
+  box-shadow:
+    0 1px 0 rgba(0, 0, 0, 0.34),
+    0 3px 7px rgba(0, 0, 0, 0.18);
+}
+
+.controls > button:active:not(:disabled)::after {
+  opacity: 1;
+}
+
+.controls > button:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--theme-a) 65%, white 35%);
+  outline-offset: 3px;
+}
+
 /* Card status controls: 未學會 / 重點複習 / 已學會 */
 .status-toggles {
   display: grid !important;
@@ -60,6 +129,19 @@
 .unlearned-toggle:has(input:checked) .toggle-check {
   opacity: 1;
   background: linear-gradient(135deg, var(--theme-b), var(--theme-a));
+}
+
+@media (hover: none) {
+  .controls > button:hover:not(:disabled) {
+    transform: translateY(0) scale(1);
+    filter: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .controls > button {
+    transition-duration: 1ms;
+  }
 }
 
 @media (max-width: 700px) {
