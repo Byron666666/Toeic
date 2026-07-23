@@ -30,7 +30,7 @@
         </div>
       </div>
 
-      <div class="topbar-actions" aria-label="網站、帳號與資料設定">
+      <div class="topbar-actions" aria-label="網站與帳號設定">
         <label class="theme-picker" for="themeSelect">
           <span>場景</span>
           <select id="themeSelect" aria-label="選擇網站主題">
@@ -51,18 +51,16 @@
             <span class="google-mark" aria-hidden="true">G</span>
             <span>Google 登入</span>
           </button>
-
           <div class="signed-in-account" id="signedInAccount" hidden>
             <img class="account-avatar" id="accountAvatar" alt="" referrerpolicy="no-referrer" />
             <span class="account-name" id="accountName"></span>
             <button class="account-sign-out" id="googleSignOutButton" type="button">登出</button>
           </div>
-
           <span class="cloud-sync-status" id="cloudSyncStatus" data-state="local" aria-live="polite">本機儲存</span>
         </div>
 
-        <button class="ghost-button" id="exportButton" type="button" title="匯出備份">匯出備份</button>
-        <button class="ghost-button" id="importButton" type="button" title="匯入備份">匯入備份</button>
+        <button id="exportButton" type="button" hidden>匯出備份</button>
+        <button id="importButton" type="button" hidden>匯入備份</button>
         <input id="importFile" type="file" accept="application/json" hidden />
       </div>
     </header>
@@ -74,7 +72,7 @@
             <p class="eyebrow">Review deck</p>
             <h2 id="studyTitle">多益單字複習</h2>
           </div>
-          <div class="stats-grid" aria-label="單字統計">
+          <div class="stats-grid" aria-label="單字統計" hidden>
             <div><span id="totalCount">0</span><small>全部單字</small></div>
             <div><span id="reviewCount">0</span><small>重點複習</small></div>
             <div><span id="learnedCount">0</span><small>已學會</small></div>
@@ -87,9 +85,9 @@
           <div class="goal-meter">
             <span class="goal-label">今日專注值</span>
             <span class="goal-track" aria-hidden="true"><span id="goalProgress"></span></span>
-            <strong id="goalText">0 / 100</strong>
+            <strong id="goalText">0 / 1000</strong>
           </div>
-          <p class="companion-line" id="companionLine">先翻一張卡，讓大腦進入英文模式。</p>
+          <p class="companion-line" id="companionLine" hidden></p>
         </div>
 
         <div class="pile-switcher" aria-label="選擇複習牌堆">
@@ -139,13 +137,13 @@
           <label class="status-toggle review-toggle" data-feedback="review">
             <input id="reviewToggle" type="checkbox" />
             <span class="toggle-icon" aria-hidden="true">🔥</span>
-            <span class="toggle-copy"><strong>加入重點複習</strong><small>這個字等等再考一次</small></span>
+            <span class="toggle-copy"><strong>重點複習</strong></span>
             <span class="toggle-check" aria-hidden="true">✓</span>
           </label>
           <label class="status-toggle learned-toggle" data-feedback="learned">
             <input id="learnedToggle" type="checkbox" />
             <span class="toggle-icon" aria-hidden="true">🌟</span>
-            <span class="toggle-copy"><strong>標記為已學會</strong><small>收進今天的成就清單</small></span>
+            <span class="toggle-copy"><strong>已學會</strong></span>
             <span class="toggle-check" aria-hidden="true">✓</span>
           </label>
         </div>
