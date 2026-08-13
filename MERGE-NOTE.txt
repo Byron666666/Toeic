@@ -1,0 +1,1 @@
+Daily reading update: Day 002/003 data and mobile flip fix are ready in this branch. articles.html still needs to load articles-extra-data.js before articles.js and articles-flip-fix.js after articles.js.
