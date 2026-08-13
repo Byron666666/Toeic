@@ -1,0 +1,1 @@
+window.FIRST3_REMIX[2].targetWords.push("supplier","contract","expense","authorize","approve","revise","implement","allocate","coordinate","postpone");
