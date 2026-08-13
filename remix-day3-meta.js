@@ -1,0 +1,1 @@
+window.FIRST3_REMIX[3].targetWords.push("acclaim");Object.assign(window.FIRST3_REMIX[3],{date:"2026-08-13",title:"Two Days to Open the Store",topic:"零售開幕・現場管理",level:"TOEIC 700–850"});
