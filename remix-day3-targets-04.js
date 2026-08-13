@@ -1,1 +1,1 @@
-window.FIRST3_REMIX[3].targetWords.push("procedure","compliance","performance","negotiation","urgently","price quote","supervise","vendor","warehouse");
+window.FIRST3_REMIX[3].targetWords.push("procedure","compliance","performance","negotiation","urgently","price quote","supervise","vendor","warehouse","draw a check","draw a distinction between","draw the line at","draw up a new agreement","dressed in suit");
