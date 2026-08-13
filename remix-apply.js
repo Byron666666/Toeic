@@ -1,0 +1,1 @@
+(() => { const source=window.FIRST3_REMIX||{}; window.TOEIC_ARTICLES=Array.isArray(window.TOEIC_ARTICLES)?window.TOEIC_ARTICLES:[]; [1,2,3].forEach(day=>{const article=source[day];if(!article)return;const index=window.TOEIC_ARTICLES.findIndex(item=>Number(item.day)===day);if(index>=0)window.TOEIC_ARTICLES[index]=article;else window.TOEIC_ARTICLES.push(article);});})();
