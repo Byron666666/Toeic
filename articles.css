@@ -22,3 +22,38 @@
 details.study-details{margin-top:1rem;border:1px solid var(--line);border-radius:1rem;background:rgba(255,255,255,.025)}details.study-details summary{cursor:pointer;padding:1rem 1.1rem;font-weight:800}.details-body{padding:0 1.1rem 1.1rem;color:#e9e4f3;line-height:1.75}.translation-paragraph{margin-bottom:.9rem}.quiz-question{margin:0 0 1rem;padding:.95rem;border-radius:.9rem;background:rgba(255,255,255,.035)}.quiz-question strong{display:block;margin-bottom:.55rem}.quiz-choice{display:block;margin:.25rem 0;color:var(--muted)}.answer-key{margin-top:.8rem;color:var(--good);font-weight:800}.data-warning{margin-top:1rem;padding:.8rem .9rem;border-radius:.9rem;color:#ffd5d5;background:rgba(255,106,106,.08);border:1px solid rgba(255,106,106,.2)}
 .word-dialog{width:min(560px,calc(100% - 1.5rem));padding:0;border:1px solid rgba(255,255,255,.14);border-radius:1.4rem;color:var(--text);background:#1c1932;box-shadow:0 28px 90px rgba(0,0,0,.5)}.word-dialog::backdrop{background:rgba(4,3,12,.74);backdrop-filter:blur(6px)}.dialog-shell{position:relative;padding:clamp(1.3rem,4vw,2rem)}.dialog-close{position:absolute;top:.8rem;right:.8rem;width:2.4rem;height:2.4rem;border:1px solid var(--line);border-radius:999px;color:var(--muted);background:rgba(255,255,255,.05);cursor:pointer;font-size:1.5rem;line-height:1}.dialog-kicker{margin-bottom:.45rem;color:var(--accent);font-size:.78rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase}.dialog-shell h2{margin-bottom:.25rem;padding-right:3rem;font-size:clamp(2rem,6vw,3.2rem);overflow-wrap:anywhere}.dialog-phonetic,.dialog-pos,.dialog-detail,.dialog-source-note{color:var(--muted)}.dialog-pos{margin-top:-.3rem}.dialog-meaning{margin:1rem 0;padding:1rem;border-radius:1rem;background:rgba(255,158,196,.1);font-size:1.2rem;font-weight:800;line-height:1.6}.dialog-example{margin-top:1rem;padding-top:1rem;border-top:1px solid var(--line);line-height:1.65}.dialog-example-meaning{margin-top:.45rem;color:var(--muted);line-height:1.65}.dialog-source-note{margin:1rem 0 0;font-size:.78rem}.empty-state{padding:3rem 1rem;text-align:center;color:var(--muted)}
 @media(max-width:960px){.progress-card{grid-template-columns:1fr}.reading-layout{grid-template-columns:1fr}.article-sidebar{position:static;max-height:none}.article-list{grid-template-columns:repeat(auto-fit,minmax(220px,1fr));max-height:none}}@media(max-width:640px){.reading-shell{width:min(100% - 1rem,1450px);margin-top:.6rem}.reading-topbar{padding:.7rem .75rem}.back-link{font-size:.82rem}.progress-card,.article-sidebar,.article-panel{border-radius:1.05rem}.progress-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.article-panel{padding:1rem}.article-copy{font-size:1.04rem;line-height:1.82}}
+
+/* Plain clickable vocabulary text: no boxes, chips, or background pills. */
+.vocab-word,
+.target-chip {
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  color: var(--accent) !important;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: none !important;
+}
+
+.vocab-word {
+  display: inline !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.target-chip {
+  padding: .08rem .12rem !important;
+}
+
+.vocab-word:hover,
+.vocab-word:focus-visible,
+.target-chip:hover,
+.target-chip:focus-visible {
+  color: #ffd0e3 !important;
+  background: transparent !important;
+  outline: none !important;
+  text-decoration: underline !important;
+  text-underline-offset: .16em;
+}
