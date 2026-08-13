@@ -1,0 +1,1 @@
+window.FIRST3_REMIX[3].targetWords.push("put on","put out for display","put up with","qualified","stand up for");
