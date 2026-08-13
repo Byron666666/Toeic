@@ -1,0 +1,1 @@
+Story-style article selection, tap-to-flip reading, and flashcard-to-reading navigation are ready.
