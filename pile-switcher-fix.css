@@ -131,6 +131,28 @@
   background: linear-gradient(135deg, var(--theme-b), var(--theme-a));
 }
 
+/* Keep the desktop top-right Daily Articles link above any overlapping UI layer. */
+.topbar {
+  position: relative;
+  z-index: 100;
+  overflow: visible;
+}
+
+.topbar-actions {
+  position: relative;
+  z-index: 101;
+  overflow: visible;
+}
+
+.topbar-actions > a[href="daily.html"] {
+  position: relative;
+  z-index: 102;
+  pointer-events: auto !important;
+  cursor: pointer;
+  flex: 0 0 auto;
+  isolation: isolate;
+}
+
 @media (hover: none) {
   .controls > button:hover:not(:disabled) {
     transform: translateY(0) scale(1);
