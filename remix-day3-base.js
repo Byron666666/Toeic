@@ -1,0 +1,1 @@
+window.FIRST3_REMIX=window.FIRST3_REMIX||{};window.FIRST3_REMIX[3]={id:"day-003",day:3,targetWords:[],paragraphs:[],translation:[],questions:[]};

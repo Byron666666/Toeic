@@ -1,0 +1,1 @@
+window.FIRST3_REMIX[2].targetWords.push("stark","statement","stationery","vessel","vicious cycle","visible","visitor","certainly","certified","central");

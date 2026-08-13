@@ -1,0 +1,1 @@
+window.FIRST3_REMIX[2].targetWords.push("productivity","equipment","inventory","shipment","inspection","maintenance","warranty","refund","purchase","invoice");

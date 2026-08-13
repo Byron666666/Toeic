@@ -94,7 +94,6 @@
     const card = target.closest(".article-flip-card");
     if (!card) return;
 
-    // Vocabulary chips and other interactive controls keep their own action.
     if (target.closest("button, a, input, textarea, select, summary, label, [role='button']")) return;
 
     flipFromArticleBody(card);
@@ -108,4 +107,11 @@
       card.title = "點文章翻面看翻譯";
     }
   }, { passive: true });
+
+  if (!document.querySelector('script[data-remix-runtime]')) {
+    const remixRuntime = document.createElement("script");
+    remixRuntime.src = "remix-runtime.js";
+    remixRuntime.dataset.remixRuntime = "true";
+    document.head.append(remixRuntime);
+  }
 })();
