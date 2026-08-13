@@ -1,1 +1,1 @@
-window.FIRST3_REMIX[3].targetWords.push("procedure","compliance","performance","negotiation");
+window.FIRST3_REMIX[3].targetWords.push("procedure","compliance","performance","negotiation","urgently","price quote","supervise","vendor","warehouse");
