@@ -114,6 +114,13 @@ function renderMarkedParagraph(text, targetSet) {
   return paragraph;
 }
 
+function renderTranslationParagraph(text) {
+  const paragraph = document.createElement("p");
+  paragraph.className = "translation-paragraph";
+  paragraph.textContent = text;
+  return paragraph;
+}
+
 function getDuplicateTargets(article) {
   const words = (article.targetWords || []).map(normalizeWord);
   const withinArticle = words.filter((word, index) => words.indexOf(word) !== index);
@@ -131,6 +138,19 @@ function getUnmatchedTargets(article) {
   return (article.targetWords || []).filter((word) => !cardMap.has(normalizeWord(word)));
 }
 
+function setArticleFlipState(card, front, back, button, flipped) {
+  card.classList.toggle("is-flipped", flipped);
+  button.setAttribute("aria-pressed", String(flipped));
+  button.textContent = flipped ? "翻回英文" : "翻面看中文";
+  front.setAttribute("aria-hidden", String(flipped));
+  back.setAttribute("aria-hidden", String(!flipped));
+
+  if ("inert" in front) {
+    front.inert = flipped;
+    back.inert = !flipped;
+  }
+}
+
 function renderArticle(article) {
   if (!article) {
     elements.articlePanel.innerHTML = '<div class="empty-state">目前還沒有文章。</div>';
@@ -146,6 +166,8 @@ function renderArticle(article) {
   eyebrow.textContent = `Day ${String(article.day).padStart(3, "0")}`;
   const title = document.createElement("h2");
   title.textContent = article.title;
+  const headerActions = document.createElement("div");
+  headerActions.className = "article-header-actions";
   const meta = document.createElement("div");
   meta.className = "article-meta";
   meta.append(
@@ -154,19 +176,64 @@ function renderArticle(article) {
     createMetaChip(article.level),
     createMetaChip(`${article.targetWords?.length || 0} 個目標字`),
   );
-  header.append(eyebrow, title, meta);
+  const flipButton = document.createElement("button");
+  flipButton.type = "button";
+  flipButton.className = "article-flip-button";
+  flipButton.setAttribute("aria-pressed", "false");
+  flipButton.textContent = "翻面看中文";
+  headerActions.append(meta, flipButton);
+  header.append(eyebrow, title, headerActions);
 
-  const copy = document.createElement("section");
-  copy.className = "article-copy";
   const targetSet = new Set((article.targetWords || []).map(normalizeWord));
+  const flipScene = document.createElement("section");
+  flipScene.className = "article-flip-scene";
+  flipScene.setAttribute("aria-label", "英文文章與中文翻譯");
+  const flipCard = document.createElement("div");
+  flipCard.className = "article-flip-card";
+
+  const front = document.createElement("div");
+  front.className = "article-face article-face-front";
+  const copy = document.createElement("div");
+  copy.className = "article-copy";
   (article.paragraphs || []).forEach((paragraph) => copy.append(renderMarkedParagraph(paragraph, targetSet)));
+  front.append(copy);
+
+  const back = document.createElement("div");
+  back.className = "article-face article-face-back";
+  back.setAttribute("aria-hidden", "true");
+  const translationLabel = document.createElement("p");
+  translationLabel.className = "translation-kicker";
+  translationLabel.textContent = "繁體中文翻譯";
+  const translationCopy = document.createElement("div");
+  translationCopy.className = "article-copy translation-copy";
+  (article.translation || []).forEach((text) => translationCopy.append(renderTranslationParagraph(text)));
+  back.append(translationLabel, translationCopy);
+
+  if (!(article.translation?.length)) {
+    flipButton.disabled = true;
+    flipButton.textContent = "尚無中文翻譯";
+    const missing = document.createElement("p");
+    missing.className = "empty-state";
+    missing.textContent = "這篇文章目前尚未加入中文翻譯。";
+    back.append(missing);
+  }
+
+  if ("inert" in back) back.inert = true;
+  flipCard.append(front, back);
+  flipScene.append(flipCard);
+
+  flipButton.addEventListener("click", () => {
+    if (flipButton.disabled) return;
+    const flipped = !flipCard.classList.contains("is-flipped");
+    setArticleFlipState(flipCard, front, back, flipButton, flipped);
+  });
 
   const wordsSection = document.createElement("section");
   wordsSection.className = "section-card";
   const wordsHeading = document.createElement("div");
   wordsHeading.className = "section-heading";
   const wordsTitle = document.createElement("h3");
-  wordsTitle.textContent = "本篇 60 個目標單字";
+  wordsTitle.textContent = `本篇 ${article.targetWords?.length || 0} 個目標單字`;
   const wordsCount = document.createElement("span");
   wordsCount.textContent = `${article.targetWords?.length || 0} 個｜點一下看單字卡`;
   wordsHeading.append(wordsTitle, wordsCount);
@@ -175,24 +242,7 @@ function renderArticle(article) {
   (article.targetWords || []).forEach((word) => grid.append(createVocabButton(word, word, "target-chip")));
   wordsSection.append(wordsHeading, grid);
 
-  elements.articlePanel.append(header, copy, wordsSection);
-
-  if (article.translation?.length) {
-    const details = document.createElement("details");
-    details.className = "study-details";
-    const summary = document.createElement("summary");
-    summary.textContent = "查看中文翻譯";
-    const body = document.createElement("div");
-    body.className = "details-body";
-    article.translation.forEach((text) => {
-      const p = document.createElement("p");
-      p.className = "translation-paragraph";
-      p.textContent = text;
-      body.append(p);
-    });
-    details.append(summary, body);
-    elements.articlePanel.append(details);
-  }
+  elements.articlePanel.append(header, flipScene, wordsSection);
 
   if (article.questions?.length) {
     const details = document.createElement("details");
