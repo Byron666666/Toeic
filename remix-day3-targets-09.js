@@ -1,0 +1,1 @@
+window.FIRST3_REMIX[3].targetWords.push("stay competitive","stay awake","visit","visiting","vitally");
