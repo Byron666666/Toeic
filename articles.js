@@ -138,8 +138,9 @@ function getUnmatchedTargets(article) {
   return (article.targetWords || []).filter((word) => !cardMap.has(normalizeWord(word)));
 }
 
-function setArticleFlipState(card, front, back, button, flipped) {
-  card.classList.toggle("is-flipped", flipped);
+function applyFlipState(front, back, button, flipped) {
+  front.hidden = flipped;
+  back.hidden = !flipped;
   button.setAttribute("aria-pressed", String(flipped));
   button.textContent = flipped ? "翻回英文" : "翻面看中文";
   front.setAttribute("aria-hidden", String(flipped));
@@ -149,6 +150,78 @@ function setArticleFlipState(card, front, back, button, flipped) {
     front.inert = flipped;
     back.inert = !flipped;
   }
+}
+
+function setArticleFlipState(card, front, back, button, flipped) {
+  const reduceMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
+  const finish = () => applyFlipState(front, back, button, flipped);
+
+  if (reduceMotion || typeof card.animate !== "function") {
+    finish();
+    return;
+  }
+
+  const firstHalf = card.animate(
+    [
+      { transform: "perspective(1200px) rotateY(0deg)", opacity: 1 },
+      { transform: "perspective(1200px) rotateY(88deg)", opacity: 0.72 },
+    ],
+    { duration: 170, easing: "ease-in", fill: "forwards" },
+  );
+
+  firstHalf.addEventListener("finish", () => {
+    finish();
+    card.animate(
+      [
+        { transform: "perspective(1200px) rotateY(-88deg)", opacity: 0.72 },
+        { transform: "perspective(1200px) rotateY(0deg)", opacity: 1 },
+      ],
+      { duration: 210, easing: "ease-out" },
+    );
+  }, { once: true });
+}
+
+function styleFlipControls(headerActions, button, flipScene, flipCard, back, translationLabel) {
+  Object.assign(headerActions.style, {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: "0.9rem",
+    flexWrap: "wrap",
+  });
+  Object.assign(button.style, {
+    flex: "0 0 auto",
+    padding: "0.62rem 0.95rem",
+    border: "1px solid rgba(255,158,196,.48)",
+    borderRadius: "999px",
+    color: "#fff1f7",
+    background: "linear-gradient(135deg,rgba(255,158,196,.18),rgba(169,160,255,.16))",
+    cursor: "pointer",
+    fontWeight: "800",
+  });
+  Object.assign(flipScene.style, {
+    marginTop: "1.6rem",
+    perspective: "1200px",
+  });
+  Object.assign(flipCard.style, {
+    transformOrigin: "center top",
+    willChange: "transform, opacity",
+  });
+  Object.assign(back.style, {
+    padding: "clamp(1rem,2.6vw,1.7rem)",
+    border: "1px solid rgba(169,160,255,.20)",
+    borderRadius: "1.15rem",
+    background: "linear-gradient(145deg,rgba(169,160,255,.08),rgba(255,158,196,.055))",
+  });
+  Object.assign(translationLabel.style, {
+    maxWidth: "900px",
+    margin: "0 auto .8rem",
+    color: "#a9a0ff",
+    fontSize: ".78rem",
+    fontWeight: "900",
+    letterSpacing: ".15em",
+    textTransform: "uppercase",
+  });
 }
 
 function renderArticle(article) {
@@ -195,22 +268,29 @@ function renderArticle(article) {
   front.className = "article-face article-face-front";
   const copy = document.createElement("div");
   copy.className = "article-copy";
+  copy.style.marginTop = "0";
   (article.paragraphs || []).forEach((paragraph) => copy.append(renderMarkedParagraph(paragraph, targetSet)));
   front.append(copy);
 
   const back = document.createElement("div");
   back.className = "article-face article-face-back";
-  back.setAttribute("aria-hidden", "true");
   const translationLabel = document.createElement("p");
   translationLabel.className = "translation-kicker";
   translationLabel.textContent = "繁體中文翻譯";
   const translationCopy = document.createElement("div");
   translationCopy.className = "article-copy translation-copy";
+  translationCopy.style.marginTop = "0";
+  translationCopy.style.fontFamily = 'Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
   (article.translation || []).forEach((text) => translationCopy.append(renderTranslationParagraph(text)));
   back.append(translationLabel, translationCopy);
 
+  styleFlipControls(headerActions, flipButton, flipScene, flipCard, back, translationLabel);
+  applyFlipState(front, back, flipButton, false);
+
   if (!(article.translation?.length)) {
     flipButton.disabled = true;
+    flipButton.style.opacity = ".55";
+    flipButton.style.cursor = "not-allowed";
     flipButton.textContent = "尚無中文翻譯";
     const missing = document.createElement("p");
     missing.className = "empty-state";
@@ -218,13 +298,12 @@ function renderArticle(article) {
     back.append(missing);
   }
 
-  if ("inert" in back) back.inert = true;
   flipCard.append(front, back);
   flipScene.append(flipCard);
 
   flipButton.addEventListener("click", () => {
     if (flipButton.disabled) return;
-    const flipped = !flipCard.classList.contains("is-flipped");
+    const flipped = flipButton.getAttribute("aria-pressed") !== "true";
     setArticleFlipState(flipCard, front, back, flipButton, flipped);
   });
 
