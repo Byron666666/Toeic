@@ -1,0 +1,1 @@
+window.FIRST3_REMIX[3].targetWords.push("staple","start-up cost","stationary","status");
