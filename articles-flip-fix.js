@@ -75,4 +75,37 @@
       .catch(() => finish())
       .finally(cleanup);
   };
+
+  function flipFromArticleBody(card) {
+    const panel = card.closest(".article-panel") || document;
+    const front = card.querySelector(".article-face-front");
+    const back = card.querySelector(".article-face-back");
+    const button = panel.querySelector(".article-flip-button");
+    if (!front || !back || !button || button.disabled) return;
+
+    const flipped = button.getAttribute("aria-pressed") !== "true";
+    window.setArticleFlipState(card, front, back, button, flipped);
+  }
+
+  document.addEventListener("click", (event) => {
+    const target = event.target instanceof Element ? event.target : null;
+    if (!target) return;
+
+    const card = target.closest(".article-flip-card");
+    if (!card) return;
+
+    // Vocabulary chips and other interactive controls keep their own action.
+    if (target.closest("button, a, input, textarea, select, summary, label, [role='button']")) return;
+
+    flipFromArticleBody(card);
+  });
+
+  document.addEventListener("pointerover", (event) => {
+    const target = event.target instanceof Element ? event.target : null;
+    const card = target?.closest(".article-flip-card");
+    if (card) {
+      card.style.cursor = "pointer";
+      card.title = "點文章翻面看翻譯";
+    }
+  }, { passive: true });
 })();
