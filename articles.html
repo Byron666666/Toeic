@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="zh-Hant" data-theme="sakura">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#17152f" />
+    <meta name="description" content="FlipWords 每日 TOEIC 閱讀：每篇使用不同目標單字，點擊即可查看單字卡。" />
+    <title>每日 TOEIC 閱讀｜FlipWords</title>
+    <link rel="stylesheet" href="articles.css" />
+  </head>
+  <body>
+    <header class="reading-topbar">
+      <a class="brand-link" href="index.html" aria-label="回到 FlipWords 單字卡">
+        <span class="brand-mark" aria-hidden="true">F</span>
+        <span><small>FlipWords</small><strong>每日 TOEIC 閱讀</strong></span>
+      </a>
+      <a class="back-link" href="index.html">回單字卡</a>
+    </header>
+
+    <main class="reading-shell">
+      <section class="progress-card" aria-labelledby="progressTitle">
+        <div>
+          <p class="eyebrow">Vocabulary journey</p>
+          <h1 id="progressTitle">把整個 TOEIC 字庫讀完</h1>
+          <p class="progress-copy">每篇文章標記 60 個目標單字；已用過的目標字不會再分配到後面的文章。</p>
+        </div>
+        <div class="progress-stats" aria-live="polite">
+          <div><strong id="articleCount">0</strong><span>篇文章</span></div>
+          <div><strong id="usedWordCount">0</strong><span>已使用</span></div>
+          <div><strong id="remainingWordCount">0</strong><span>剩餘單字</span></div>
+          <div><strong id="totalWordCount">0</strong><span>全部單字</span></div>
+        </div>
+        <div class="progress-track" aria-hidden="true"><span id="progressFill"></span></div>
+        <p class="progress-percent" id="progressPercent">0%</p>
+      </section>
+
+      <div class="reading-layout">
+        <aside class="article-sidebar" aria-labelledby="articleListTitle">
+          <div class="sidebar-heading">
+            <div><p class="eyebrow">Daily archive</p><h2 id="articleListTitle">文章紀錄</h2></div>
+            <span class="count-pill" id="archiveCount">0</span>
+          </div>
+          <div class="article-list" id="articleList"></div>
+        </aside>
+
+        <article class="article-panel" id="articlePanel" aria-live="polite">
+          <div class="empty-state">正在載入文章…</div>
+        </article>
+      </div>
+    </main>
+
+    <dialog class="word-dialog" id="wordDialog">
+      <form method="dialog" class="dialog-shell">
+        <button class="dialog-close" value="close" aria-label="關閉單字卡">×</button>
+        <p class="dialog-kicker">FlipWords 單字卡</p>
+        <h2 id="dialogWord">Word</h2>
+        <p class="dialog-phonetic" id="dialogPhonetic"></p>
+        <p class="dialog-pos" id="dialogPartOfSpeech"></p>
+        <div class="dialog-meaning" id="dialogMeaning"></div>
+        <div class="dialog-detail" id="dialogSynonyms"></div>
+        <div class="dialog-example" id="dialogExample"></div>
+        <div class="dialog-example-meaning" id="dialogExampleMeaning"></div>
+        <p class="dialog-source-note" id="dialogSourceNote"></p>
+      </form>
+    </dialog>
+
+    <script src="vocab-data.js"></script>
+    <script src="pronunciation-data.js"></script>
+    <script src="enrichment-data.js"></script>
+    <script src="card-details-data.js"></script>
+    <script src="articles-data.js"></script>
+    <script src="articles.js"></script>
+  </body>
+</html>
