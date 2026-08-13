@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>每日 TOEIC 閱讀｜FlipWords</title></head>
+<body>
+<script>
+fetch("articles.html").then(r=>r.text()).then(html=>{
+  const close="</scr"+"ipt>";
+  const marker='<script src="articles.js">'+close;
+  const extra='<script src="articles-extra-data.js">'+close;
+  const fix='<script src="articles-flip-fix.js">'+close;
+  document.open();
+  document.write(html.replace(marker, extra+marker+fix));
+  document.close();
+});
+</script>
+</body>
+</html>
