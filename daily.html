@@ -7,9 +7,12 @@ fetch("articles.html").then(r=>r.text()).then(html=>{
   const close="</scr"+"ipt>";
   const marker='<script src="articles.js">'+close;
   const extra='<script src="articles-extra-data.js">'+close;
+  const day4='<script src="articles-day004.js">'+close;
+  const day5='<script src="articles-day005.js">'+close;
+  const day6='<script src="articles-day006.js">'+close;
   const fix='<script src="articles-flip-fix.js">'+close;
   document.open();
-  document.write(html.replace(marker, extra+marker+fix));
+  document.write(html.replace(marker, extra+day4+day5+day6+marker+fix));
   document.close();
 });
 </script>
