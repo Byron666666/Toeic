@@ -13,9 +13,12 @@ fetch("articles.html").then(r=>r.text()).then(html=>{
   const day7='<script src="articles-day007.js">'+close;
   const day8='<script src="articles-day008.js">'+close;
   const day9='<script src="articles-day009.js">'+close;
+  const day10='<script src="articles-day010.js">'+close;
+  const day11='<script src="articles-day011.js">'+close;
+  const day12='<script src="articles-day012.js">'+close;
   const fix='<script src="articles-flip-fix.js">'+close;
   document.open();
-  document.write(html.replace(marker, extra+day4+day5+day6+day7+day8+day9+marker+fix));
+  document.write(html.replace(marker, extra+day4+day5+day6+day7+day8+day9+day10+day11+day12+marker+fix));
   document.close();
 });
 </script>
