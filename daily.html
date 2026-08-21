@@ -28,10 +28,13 @@ fetch("articles.html").then(r=>r.text()).then(html=>{
   const day22='<script src="articles-day022.js">'+close;
   const day23='<script src="articles-day023.js">'+close;
   const day24='<script src="articles-day024.js">'+close;
+  const day25='<script src="articles-day025.js">'+close;
+  const day26='<script src="articles-day026.js">'+close;
+  const day27='<script src="articles-day027.js">'+close;
   const coverageFix='<script src="articles-day017-018-fix.js">'+close;
   const fix='<script src="articles-flip-fix.js">'+close;
   document.open();
-  document.write(html.replace(marker, extra+day4+day5+day6+day7+day8+day9+day10+day11+day12+day13+day14+day15+day16+day17+day18+day19+day20+day21+day22+day23+day24+coverageFix+marker+fix));
+  document.write(html.replace(marker, extra+day4+day5+day6+day7+day8+day9+day10+day11+day12+day13+day14+day15+day16+day17+day18+day19+day20+day21+day22+day23+day24+day25+day26+day27+coverageFix+marker+fix));
   document.close();
 });
 </script>
