@@ -232,4 +232,9 @@ test('static paths resolve and 7000 loads no TOEIC/Firebase scripts', () => {
     }
   }
   assert.ok(!/firebase|\.\.\/app\.js|\.\.\/vocab-data\.js/.test(html));
+  assert.match(html, /maximum-scale=1/);
+  assert.match(html, /user-scalable=no/);
+  assert.match(html, /src="\.\.\/touch-zoom-fix\.js"/);
+  const css = fs.readFileSync(path.join(root, '7000/styles.css'), 'utf8');
+  assert.match(css, /touch-action:\s*manipulation/);
 });

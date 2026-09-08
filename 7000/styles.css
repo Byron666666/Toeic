@@ -27,12 +27,14 @@ html {
   min-width: 320px;
   background: var(--page);
   scroll-behavior: smooth;
+  touch-action: manipulation;
 }
 
 body {
   min-height: 100vh;
   margin: 0;
   overflow-x: hidden;
+  touch-action: manipulation;
   color: var(--text);
   background:
     radial-gradient(circle at 10% 0%, rgba(81, 112, 210, 0.2), transparent 34rem),
@@ -42,10 +44,13 @@ body {
 button,
 input {
   font: inherit;
+  touch-action: manipulation;
 }
 
 button,
-a {
+a,
+label {
+  touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
 }
 
