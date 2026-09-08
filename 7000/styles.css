@@ -20,6 +20,9 @@
   box-sizing: border-box;
 }
 
+[hidden] { display: none !important; }
+button:disabled { cursor: default; opacity: 0.6; }
+
 html {
   min-width: 320px;
   background: var(--page);
@@ -90,6 +93,7 @@ main {
 
 .topbar {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   min-height: 86px;
@@ -555,6 +559,8 @@ h2 {
   color: #5f6f87;
   font-family: Georgia, "Times New Roman", serif;
   font-size: 1rem;
+  overflow-wrap: anywhere;
+  text-align: center;
 }
 
 .card-pos {
@@ -578,6 +584,9 @@ h2 {
 
 .card-meaning.is-long {
   font-size: clamp(1.2rem, 2.8vw, 1.8rem);
+  max-height: 220px;
+  overflow-y: auto;
+  overflow-wrap: anywhere;
 }
 
 .back-word {

@@ -61,7 +61,7 @@
   const readStorage = (key, fallback) => {
     try {
       const parsed = JSON.parse(localStorage.getItem(key));
-      return parsed && typeof parsed === "object" ? parsed : fallback;
+      return parsed && typeof parsed === "object" && !Array.isArray(parsed) ? parsed : fallback;
     } catch {
       return fallback;
     }
@@ -80,11 +80,13 @@
   const firstLevel = Number(data.levels[0]?.level) || 1;
   const savedLevel = Number(savedPreferences.level);
   const progress = readStorage(STORAGE_KEY, {});
+  const savedPositions = savedPreferences.currentByLevel;
 
   const state = {
     level: availableLevels.has(savedLevel) ? savedLevel : firstLevel,
     currentId: null,
-    currentByLevel: savedPreferences.currentByLevel || {},
+    currentByLevel: savedPositions && typeof savedPositions === "object" && !Array.isArray(savedPositions)
+      ? savedPositions : {},
     statusFilter: "all",
     query: "",
     flipped: false,
@@ -219,12 +221,20 @@
     elements.positionProgress.style.width = `${positionPercent}%`;
     elements.flashcard.classList.toggle("is-flipped", Boolean(word && state.flipped));
     elements.flashcard.disabled = !word;
+    for (const control of [elements.previousButton, elements.nextButton, elements.randomButton,
+      elements.flipButton, elements.speakButton, elements.reviewButton, elements.learnedButton]) {
+      control.disabled = !word;
+    }
+    document.querySelector(".card-front").setAttribute("aria-hidden", String(Boolean(word && state.flipped)));
+    document.querySelector(".card-back").setAttribute("aria-hidden", String(!word || !state.flipped));
 
     if (!word) {
       elements.cardLevel.textContent = `LEVEL ${state.level}`;
       elements.cardBackLevel.textContent = `LEVEL ${state.level}`;
       elements.cardSourcePage.textContent = "沒有符合項目";
       elements.cardWord.textContent = "找不到單字";
+      elements.cardWord.classList.remove("is-long");
+      elements.flashcard.setAttribute("aria-label", "沒有符合條件的單字，請調整篩選");
       elements.cardPhonetic.textContent = "";
       elements.cardPartOfSpeech.textContent = "";
       elements.cardMeaning.textContent = "請調整搜尋或學習狀態篩選";
@@ -350,6 +360,8 @@
     state.currentId = wordId;
     state.currentByLevel[state.level] = wordId;
     state.flipped = false;
+    if ("speechSynthesis" in window) window.speechSynthesis.cancel();
+    elements.voiceStatus.textContent = "";
     persistPreferences();
     renderCard();
     renderWordList();
@@ -393,8 +405,10 @@
 
     const oldIndex = state.queue.findIndex((item) => item.id === word.id);
     syncQueue({ preserveCurrent: true });
-    if (!state.currentId && state.queue.length) {
+    if (!state.queue.some((item) => item.id === word.id) && state.queue.length) {
       state.currentId = state.queue[Math.min(oldIndex, state.queue.length - 1)].id;
+      state.currentByLevel[state.level] = state.currentId;
+      persistPreferences();
     }
     renderLevelGrid();
     renderCard();
@@ -412,8 +426,10 @@
     }
 
     const spokenWord = word.word
-      .replace(/\([^)]*\)/g, " ")
       .split("/")[0]
+      .replace(/\(\d+\)/g, " ")
+      .replace(/\(([^)]*)\)/g, "$1")
+      .replace(/\d+$/, "")
       .replace(/\s+/g, " ")
       .trim();
     window.speechSynthesis.cancel();
@@ -487,13 +503,17 @@
   });
 
   document.addEventListener("keydown", (event) => {
-    if (event.target.matches("input, textarea, select, button")) return;
+    if (event.altKey || event.ctrlKey || event.metaKey || event.target.isContentEditable
+      || event.target.closest("input, textarea, select, [contenteditable='true']")) return;
     if (event.code === "Space") {
+      if (event.target.closest("button, a")) return;
       event.preventDefault();
       flipCard();
     } else if (event.key === "ArrowLeft") {
+      event.preventDefault();
       moveCard(-1);
     } else if (event.key === "ArrowRight") {
+      event.preventDefault();
       moveCard(1);
     }
   });
