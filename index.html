@@ -14,6 +14,7 @@
     <link rel="stylesheet" href="touch-zoom-fix.css" />
     <link rel="stylesheet" href="responsive-layout.css" />
     <link rel="stylesheet" href="pile-switcher-fix.css" />
+    <link rel="stylesheet" href="site-nav.css" />
   </head>
   <body>
     <div class="ambient-scene" aria-hidden="true">
@@ -37,6 +38,11 @@
       </div>
 
       <div class="topbar-actions" aria-label="網站與帳號設定">
+        <nav class="site-tabs" aria-label="字庫切換">
+          <a class="site-tab is-active" href="./" aria-current="page"><span class="site-tab-icon" aria-hidden="true">🃏</span><span>多益單字</span></a>
+          <a class="site-tab" href="7000/"><span class="site-tab-icon" aria-hidden="true">🧭</span><span>7000 單字</span></a>
+        </nav>
+
         <a class="ghost-button" href="daily.html" aria-label="前往每日 TOEIC 閱讀" style="display:inline-flex;align-items:center;gap:.45rem;text-decoration:none;white-space:nowrap;">
           <span aria-hidden="true">📖</span>
           <span>每日文章</span>

@@ -13,6 +13,7 @@ FlipWords 是一個靜態網頁版多益單字卡工具，用來瀏覽、搜尋�
 - 新增、編輯、刪除單字
 - 匯入 / 匯出 JSON 備份
 - 使用 localStorage 保留學習狀態
+- 獨立的「大考中心 7000 單字」Level 1–6 分級練習區
 
 ## 開啟方式
 
@@ -37,7 +38,12 @@ index.html
 | `pronunciation-data.js` | 額外發音資料 |
 | `enrichment-data.js` | 額外同義詞資料 |
 | `card-details-data.js` | 額外例句、詞性、音標資料 |
+| `7000/` | 7000 單字的獨立頁面、互動程式、樣式與分級資料 |
 | `duplicate-words-in-json.md` | 最近一次英文單字去重紀錄 |
+
+## 7000 單字分級區
+
+從首頁的「7000 單字」分頁，或直接開啟 `7000/index.html`。附件中的字彙依 Level 1–6 分開呈現，並使用 `flipwords:gsat-7000:*` 的 localStorage key；單字內容與學習進度都不會併入原本的 TOEIC 字庫。
 
 ## 更新單字資料
 
