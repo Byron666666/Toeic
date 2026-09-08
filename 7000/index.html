@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#111a30" />
+    <meta
+      name="description"
+      content="大考中心 7000 單字 Level 1–6 分級單字卡，進度與 FlipWords 多益單字庫分開儲存。"
+    />
+    <title>7000 單字分級練習｜FlipWords</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="page-glow page-glow-one" aria-hidden="true"></div>
+    <div class="page-glow page-glow-two" aria-hidden="true"></div>
+
+    <header class="topbar">
+      <a class="brand" href="../" aria-label="回到 FlipWords 多益單字">
+        <span class="brand-mark" aria-hidden="true">7K</span>
+        <span>
+          <small>FlipWords</small>
+          <strong>分級字彙室</strong>
+        </span>
+      </a>
+
+      <nav class="site-nav" aria-label="字庫切換">
+        <a href="../">多益單字</a>
+        <a class="is-active" href="./" aria-current="page">7000 單字</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="hero" aria-labelledby="pageTitle">
+        <div>
+          <p class="eyebrow">GENERAL ENGLISH · LEVEL 1–6</p>
+          <h1 id="pageTitle">把 7000 單字拆成<br /><span>每天走得完的一小段</span></h1>
+          <p class="hero-copy">
+            依照附件中的大考中心字彙表分級練習。這裡使用獨立進度，不會加入或改動原本的多益單字庫。
+          </p>
+        </div>
+        <div class="hero-summary" aria-label="字庫摘要">
+          <span>獨立字庫</span>
+          <strong id="allWordsCount">0</strong>
+          <small>張分級單字卡</small>
+          <div><b>6</b> 個 Level</div>
+        </div>
+      </section>
+
+      <section class="level-section" aria-labelledby="levelTitle">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">CHOOSE YOUR LEVEL</p>
+            <h2 id="levelTitle">選擇今天的難度</h2>
+          </div>
+          <span class="independent-badge"><i aria-hidden="true"></i> 與多益進度分開</span>
+        </div>
+        <div class="level-grid" id="levelGrid"></div>
+      </section>
+
+      <section class="workspace" aria-label="單字練習區">
+        <article class="study-panel">
+          <div class="study-heading">
+            <div>
+              <p class="eyebrow" id="levelEyebrow">LEVEL 1</p>
+              <h2 id="studyHeading">基礎單字練習</h2>
+            </div>
+            <div class="position" aria-live="polite">
+              <strong id="positionText">0 / 0</strong>
+              <span class="progress-track" aria-hidden="true"><i id="positionProgress"></i></span>
+            </div>
+          </div>
+
+          <button class="flashcard" id="flashcard" type="button" aria-label="翻開單字卡答案">
+            <span class="card-face card-front">
+              <span class="card-meta">
+                <b id="cardLevel">LEVEL 1</b>
+                <small id="cardSourcePage">PDF p.1</small>
+              </span>
+              <strong class="card-word" id="cardWord">Loading…</strong>
+              <span class="card-phonetic" id="cardPhonetic"></span>
+              <span class="card-pos" id="cardPartOfSpeech"></span>
+              <span class="flip-hint">點一下看中文 <kbd>Space</kbd></span>
+            </span>
+            <span class="card-face card-back">
+              <span class="card-meta">
+                <b>中文意思</b>
+                <small id="cardBackLevel">LEVEL 1</small>
+              </span>
+              <strong class="card-meaning" id="cardMeaning">載入中</strong>
+              <span class="back-word" id="cardBackWord"></span>
+              <span class="flip-hint">再點一下回到英文</span>
+            </span>
+          </button>
+
+          <div class="card-controls" aria-label="單字卡控制">
+            <button class="round-button" id="previousButton" type="button" aria-label="上一張">←</button>
+            <button class="control-button" id="speakButton" type="button"><span aria-hidden="true">◖</span> 發音</button>
+            <button class="control-button primary" id="flipButton" type="button">翻面</button>
+            <button class="control-button" id="randomButton" type="button"><span aria-hidden="true">✦</span> 隨機</button>
+            <button class="round-button" id="nextButton" type="button" aria-label="下一張">→</button>
+          </div>
+
+          <div class="learning-actions" aria-label="設定學習狀態">
+            <button class="status-button review" id="reviewButton" type="button" aria-pressed="false">
+              <span aria-hidden="true">↻</span>
+              <span><small>需要再看</small><strong>重點複習</strong></span>
+            </button>
+            <button class="status-button learned" id="learnedButton" type="button" aria-pressed="false">
+              <span aria-hidden="true">✓</span>
+              <span><small>這個會了</small><strong>標記學會</strong></span>
+            </button>
+          </div>
+          <p class="voice-status" id="voiceStatus" aria-live="polite"></p>
+        </article>
+
+        <aside class="side-panel" aria-label="進度與篩選">
+          <section class="stats-card">
+            <div class="section-heading compact">
+              <div><p class="eyebrow">YOUR PROGRESS</p><h2>本 Level 進度</h2></div>
+              <strong class="percent" id="learnedPercent">0%</strong>
+            </div>
+            <div class="completion-track" aria-hidden="true"><i id="completionProgress"></i></div>
+            <div class="stats-grid">
+              <div><strong id="newCount">0</strong><span>未學</span></div>
+              <div><strong id="reviewCount">0</strong><span>複習</span></div>
+              <div><strong id="learnedCount">0</strong><span>學會</span></div>
+            </div>
+          </section>
+
+          <section class="filter-card">
+            <div class="filter-heading">
+              <div><p class="eyebrow">FIND A WORD</p><h2>縮小練習範圍</h2></div>
+              <button id="clearFiltersButton" type="button">清除</button>
+            </div>
+            <label class="field-label" for="searchInput">搜尋英文、中文、音標或詞性</label>
+            <div class="search-field">
+              <span aria-hidden="true">⌕</span>
+              <input id="searchInput" type="search" placeholder="例如 achieve、成就" autocomplete="off" />
+            </div>
+            <fieldset class="filter-options">
+              <legend>學習狀態</legend>
+              <label><input type="radio" name="statusFilter" value="all" checked /><span>全部</span></label>
+              <label><input type="radio" name="statusFilter" value="new" /><span>未學</span></label>
+              <label><input type="radio" name="statusFilter" value="review" /><span>複習</span></label>
+              <label><input type="radio" name="statusFilter" value="learned" /><span>學會</span></label>
+            </fieldset>
+            <p class="filter-result" id="filterResult" aria-live="polite">目前顯示全部單字</p>
+          </section>
+        </aside>
+      </section>
+
+      <section class="word-browser" aria-labelledby="browserTitle">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">QUICK BROWSE</p>
+            <h2 id="browserTitle">這個 Level 的單字</h2>
+          </div>
+          <span class="result-count" id="resultCount">0 個結果</span>
+        </div>
+        <div class="word-list" id="wordList"></div>
+        <button class="load-more" id="loadMoreButton" type="button" hidden>顯示更多</button>
+      </section>
+    </main>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+    <script src="vocab-data.js" defer></script>
+    <script src="app.js" defer></script>
+  </body>
+</html>
