@@ -1,175 +1,109 @@
 <!doctype html>
-<html lang="zh-Hant">
+<html lang="zh-Hant" data-theme="sakura" data-storage-scope="gsat-7000">
   <head>
     <meta charset="UTF-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"
-    />
-    <meta name="theme-color" content="#111a30" />
-    <meta
-      name="description"
-      content="大考中心 7000 單字 Level 1–6 分級單字卡，進度與 FlipWords 多益單字庫分開儲存。"
-    />
-    <title>7000 單字分級練習｜FlipWords</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+    <meta name="theme-color" content="#17152f" />
+    <meta name="description" content="大考中心 7000 單字 Level 1–6 分級單字卡，進度與多益單字庫分開儲存。" />
+    <title>FlipWords 7000 單字卡</title>
+    <link rel="stylesheet" href="../styles.css" />
+    <link rel="stylesheet" href="../ui-enhancements.css" />
+    <link rel="stylesheet" href="../touch-zoom-fix.css" />
+    <link rel="stylesheet" href="../responsive-layout.css" />
+    <link rel="stylesheet" href="../pile-switcher-fix.css" />
+    <link rel="stylesheet" href="../site-nav.css" />
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <div class="page-glow page-glow-one" aria-hidden="true"></div>
-    <div class="page-glow page-glow-two" aria-hidden="true"></div>
+    <div class="ambient-scene" aria-hidden="true">
+      <span class="ambient-orb orb-one"></span><span class="ambient-orb orb-two"></span>
+      <span class="ambient-spark spark-one">✦</span><span class="ambient-spark spark-two">✧</span><span class="ambient-spark spark-three">✦</span>
+      <img class="study-mascot" id="studyMascot" src="../study-mascot.svg" alt="" />
+      <span class="mascot-bubble" id="mascotBubble">今天也一起把單字收進腦袋吧！</span>
+    </div>
 
     <header class="topbar">
-      <a class="brand" href="../" aria-label="回到 FlipWords 多益單字">
-        <span class="brand-mark" aria-hidden="true">7K</span>
-        <span>
-          <small>FlipWords</small>
-          <strong>分級字彙室</strong>
-        </span>
-      </a>
-
-      <nav class="site-nav" aria-label="字庫切換">
-        <a href="../">多益單字</a>
-        <a class="is-active" href="./" aria-current="page">7000 單字</a>
-      </nav>
+      <div class="brand-lockup">
+        <span class="brand-mark" aria-hidden="true">F</span>
+        <div><p class="eyebrow">English flashcards</p><h1>FlipWords</h1><p class="brand-subtitle">你的 7000 單字自習室</p></div>
+      </div>
+      <div class="topbar-actions" aria-label="網站與顯示設定">
+        <nav class="site-tabs" aria-label="字庫切換">
+          <a class="site-tab" href="../"><span class="site-tab-icon" aria-hidden="true">🃏</span><span>多益單字</span></a>
+          <a class="site-tab is-active" href="./" aria-current="page"><span class="site-tab-icon" aria-hidden="true">🧭</span><span>7000 單字</span></a>
+        </nav>
+        <label class="theme-picker" for="themeSelect"><span>場景</span><select id="themeSelect" aria-label="選擇網站主題">
+          <option value="sakura">夜櫻自習室</option><option value="ocean">海風晨讀</option>
+          <option value="cosmos">星空圖書館</option><option value="cafe">暖光咖啡廳</option>
+        </select></label>
+        <button class="ghost-button sound-button" id="soundToggle" type="button" aria-pressed="true"><span aria-hidden="true">🔊</span><span>互動音效</span></button>
+        <span class="storage-badge">獨立本機進度</span>
+      </div>
     </header>
 
-    <main>
-      <section class="hero" aria-labelledby="pageTitle">
-        <div>
-          <p class="eyebrow">GENERAL ENGLISH · LEVEL 1–6</p>
-          <h1 id="pageTitle">把 7000 單字拆成<br /><span>每天走得完的一小段</span></h1>
-          <p class="hero-copy">
-            依照附件中的大考中心字彙表分級練習。這裡使用獨立進度，不會加入或改動原本的多益單字庫。
-          </p>
+    <main class="app-shell">
+      <section class="study-panel" aria-labelledby="studyTitle">
+        <div class="panel-heading">
+          <div><p class="eyebrow" id="levelEyebrow">Level 1</p><h2 id="studyTitle">7000 單字複習</h2></div>
+          <span class="pill" id="levelTotal">0 張</span>
         </div>
-        <div class="hero-summary" aria-label="字庫摘要">
-          <span>獨立字庫</span>
-          <strong id="allWordsCount">0</strong>
-          <small>張分級單字卡</small>
-          <div><b>6</b> 個 Level</div>
+        <div class="study-hud" aria-label="今日學習回饋">
+          <div class="hud-chip combo-chip"><span aria-hidden="true">⚡</span><span><strong id="comboCount">0</strong> 連擊</span></div>
+          <div class="hud-chip xp-chip"><span aria-hidden="true">✨</span><span><strong id="sessionXp">0</strong> XP</span></div>
+          <div class="goal-meter"><span class="goal-label">今日專注值</span><span class="goal-track" aria-hidden="true"><span id="goalProgress"></span></span><strong id="goalText">0 / 1000</strong></div>
+          <p class="companion-line" id="companionLine" hidden></p>
+        </div>
+        <div class="level-switcher" id="levelGrid" aria-label="選擇單字等級"></div>
+        <div class="pile-switcher" aria-label="選擇複習牌堆">
+          <button class="pile-button is-active" id="unlearnedPileButton" type="button" aria-pressed="true"><span>未學會</span><strong id="unlearnedPileCount">0</strong></button>
+          <button class="pile-button" id="reviewPileButton" type="button" aria-pressed="false"><span>重點複習</span><strong id="reviewPileCount">0</strong></button>
+          <button class="pile-button" id="learnedPileButton" type="button" aria-pressed="false"><span>已學會</span><strong id="learnedPileCount">0</strong></button>
+        </div>
+        <div class="progress-row"><span id="activePileLabel">未學會牌堆</span><span id="positionText">0 / 0</span><div class="progress-track" aria-hidden="true"><span id="progressFill"></span></div></div>
+
+        <div class="flashcard" id="flashcard" role="button" tabindex="0" aria-label="翻面">
+          <span class="flashcard-face flashcard-front">
+            <span class="card-corner corner-top" aria-hidden="true">✦</span><span class="card-tag" id="cardTag">Level 1</span>
+            <strong class="card-word" id="cardWord">Loading…</strong><span class="card-phonetic" id="cardPhonetic"></span><span class="card-pos" id="cardPartOfSpeech"></span>
+            <span class="card-note">點擊卡片翻面</span><span class="card-corner corner-bottom" aria-hidden="true">✧</span>
+          </span>
+          <span class="flashcard-face flashcard-back">
+            <span class="card-corner corner-top" aria-hidden="true">✦</span><span class="card-tag" id="cardBackTag">中文意思</span>
+            <strong class="card-meaning" id="cardMeaning">載入中</strong><span class="card-related" id="cardSource"></span>
+            <span class="card-corner corner-bottom" aria-hidden="true">✧</span>
+          </span>
+        </div>
+
+        <div class="controls" aria-label="單字卡操作">
+          <button class="icon-button" id="previousButton" type="button" title="上一張" aria-label="上一張">←</button>
+          <button class="primary-button" id="pronounceButton" type="button">發音</button>
+          <button class="primary-button" id="flipButton" type="button">翻面</button>
+          <button class="icon-button" id="nextButton" type="button" title="下一張" aria-label="下一張">→</button>
+          <button class="primary-button" id="shuffleButton" type="button">隨機</button>
+        </div>
+        <p class="voice-status" id="voiceStatus" aria-live="polite"></p>
+        <p class="keyboard-hint"><kbd>Space</kbd> 翻面　<kbd>←</kbd><kbd>→</kbd> 換字</p>
+        <div class="status-toggles" aria-label="設定單字狀態">
+          <label class="status-toggle review-toggle" data-feedback="review"><input id="reviewToggle" type="checkbox" /><span class="toggle-icon" aria-hidden="true">🔥</span><span class="toggle-copy"><strong>重點複習</strong></span><span class="toggle-check" aria-hidden="true">✓</span></label>
+          <label class="status-toggle learned-toggle" data-feedback="learned"><input id="learnedToggle" type="checkbox" /><span class="toggle-icon" aria-hidden="true">🌟</span><span class="toggle-copy"><strong>已學會</strong></span><span class="toggle-check" aria-hidden="true">✓</span></label>
         </div>
       </section>
 
-      <section class="level-section" aria-labelledby="levelTitle">
-        <div class="section-heading">
-          <div>
-            <p class="eyebrow">CHOOSE YOUR LEVEL</p>
-            <h2 id="levelTitle">選擇今天的難度</h2>
-          </div>
-          <span class="independent-badge"><i aria-hidden="true"></i> 與多益進度分開</span>
+      <section class="library-panel" aria-labelledby="libraryTitle">
+        <div class="panel-heading"><div><p class="eyebrow">Level library</p><h2 id="libraryTitle">Level 1 單字庫</h2></div><span class="pill" id="visibleCount">0 張</span></div>
+        <div class="filters library-filters">
+          <label><span>搜尋</span><input id="searchInput" type="search" placeholder="搜尋英文、中文、音標或詞性" /></label>
+          <label><span>Level</span><select id="levelSelect" aria-label="選擇 Level"></select></label>
         </div>
-        <div class="level-grid" id="levelGrid"></div>
-      </section>
-
-      <section class="workspace" aria-label="單字練習區">
-        <article class="study-panel">
-          <div class="study-heading">
-            <div>
-              <p class="eyebrow" id="levelEyebrow">LEVEL 1</p>
-              <h2 id="studyHeading">基礎單字練習</h2>
-            </div>
-            <div class="position" aria-live="polite">
-              <strong id="positionText">0 / 0</strong>
-              <span class="progress-track" aria-hidden="true"><i id="positionProgress"></i></span>
-            </div>
-          </div>
-
-          <button class="flashcard" id="flashcard" type="button" aria-label="翻開單字卡答案">
-            <span class="card-face card-front">
-              <span class="card-meta">
-                <b id="cardLevel">LEVEL 1</b>
-                <small id="cardSourcePage">PDF p.1</small>
-              </span>
-              <strong class="card-word" id="cardWord">Loading…</strong>
-              <span class="card-phonetic" id="cardPhonetic"></span>
-              <span class="card-pos" id="cardPartOfSpeech"></span>
-              <span class="flip-hint">點一下看中文 <kbd>Space</kbd></span>
-            </span>
-            <span class="card-face card-back">
-              <span class="card-meta">
-                <b>中文意思</b>
-                <small id="cardBackLevel">LEVEL 1</small>
-              </span>
-              <strong class="card-meaning" id="cardMeaning">載入中</strong>
-              <span class="back-word" id="cardBackWord"></span>
-              <span class="flip-hint">再點一下回到英文</span>
-            </span>
-          </button>
-
-          <div class="card-controls" aria-label="單字卡控制">
-            <button class="round-button" id="previousButton" type="button" aria-label="上一張">←</button>
-            <button class="control-button" id="speakButton" type="button"><span aria-hidden="true">◖</span> 發音</button>
-            <button class="control-button primary" id="flipButton" type="button">翻面</button>
-            <button class="control-button" id="randomButton" type="button"><span aria-hidden="true">✦</span> 隨機</button>
-            <button class="round-button" id="nextButton" type="button" aria-label="下一張">→</button>
-          </div>
-
-          <div class="learning-actions" aria-label="設定學習狀態">
-            <button class="status-button review" id="reviewButton" type="button" aria-pressed="false">
-              <span aria-hidden="true">↻</span>
-              <span><small>需要再看</small><strong>重點複習</strong></span>
-            </button>
-            <button class="status-button learned" id="learnedButton" type="button" aria-pressed="false">
-              <span aria-hidden="true">✓</span>
-              <span><small>這個會了</small><strong>標記學會</strong></span>
-            </button>
-          </div>
-          <p class="voice-status" id="voiceStatus" aria-live="polite"></p>
-        </article>
-
-        <aside class="side-panel" aria-label="進度與篩選">
-          <section class="stats-card">
-            <div class="section-heading compact">
-              <div><p class="eyebrow">YOUR PROGRESS</p><h2>本 Level 進度</h2></div>
-              <strong class="percent" id="learnedPercent">0%</strong>
-            </div>
-            <div class="completion-track" aria-hidden="true"><i id="completionProgress"></i></div>
-            <div class="stats-grid">
-              <div><strong id="newCount">0</strong><span>未學</span></div>
-              <div><strong id="reviewCount">0</strong><span>複習</span></div>
-              <div><strong id="learnedCount">0</strong><span>學會</span></div>
-            </div>
-          </section>
-
-          <section class="filter-card">
-            <div class="filter-heading">
-              <div><p class="eyebrow">FIND A WORD</p><h2>縮小練習範圍</h2></div>
-              <button id="clearFiltersButton" type="button">清除</button>
-            </div>
-            <label class="field-label" for="searchInput">搜尋英文、中文、音標或詞性</label>
-            <div class="search-field">
-              <span aria-hidden="true">⌕</span>
-              <input id="searchInput" type="search" placeholder="例如 achieve、成就" autocomplete="off" />
-            </div>
-            <fieldset class="filter-options">
-              <legend>學習狀態</legend>
-              <label><input type="radio" name="statusFilter" value="all" checked /><span>全部</span></label>
-              <label><input type="radio" name="statusFilter" value="new" /><span>未學</span></label>
-              <label><input type="radio" name="statusFilter" value="review" /><span>複習</span></label>
-              <label><input type="radio" name="statusFilter" value="learned" /><span>學會</span></label>
-            </fieldset>
-            <p class="filter-result" id="filterResult" aria-live="polite">目前顯示全部單字</p>
-          </section>
-        </aside>
-      </section>
-
-      <section class="word-browser" aria-labelledby="browserTitle">
-        <div class="section-heading">
-          <div>
-            <p class="eyebrow">QUICK BROWSE</p>
-            <h2 id="browserTitle">這個 Level 的單字</h2>
-          </div>
-          <span class="result-count" id="resultCount">0 個結果</span>
-        </div>
-        <div class="word-list" id="wordList"></div>
-        <button class="load-more" id="loadMoreButton" type="button" hidden>顯示更多</button>
+        <p class="library-note">內容來自原始 PDF；學習進度不會和多益字庫混在一起。</p>
+        <div class="card-list" id="cardList" aria-live="polite"></div>
       </section>
     </main>
 
-    <div class="toast" id="toast" role="status" aria-live="polite"></div>
-
-    <script src="vocab-data.js" defer></script>
-    <script src="app.js" defer></script>
-    <script src="../touch-zoom-fix.js" defer></script>
+    <div class="feedback-layer" id="feedbackLayer" aria-hidden="true"></div>
+    <div class="action-toast" id="actionToast" role="status" aria-live="polite"></div>
+    <div class="achievement-popover" id="achievementPopover" role="status" aria-live="polite"><span aria-hidden="true">🏆</span><div><strong>專注力升級！</strong><small>你已連續完成 5 次學習動作</small></div></div>
+    <script src="vocab-data.js"></script><script src="app.js"></script>
+    <script src="../ui-enhancements.js"></script><script src="../touch-zoom-fix.js"></script>
   </body>
 </html>
