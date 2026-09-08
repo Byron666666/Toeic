@@ -19,7 +19,8 @@
   const flashcard = $("#flashcard");
 
   const today = new Date().toISOString().slice(0, 10);
-  const key = `flipwords.ui.${today}`;
+  const storageScope = root.dataset.storageScope ? `.${root.dataset.storageScope}` : "";
+  const key = `flipwords${storageScope}.ui.${today}`;
   const messages = [
     "漂亮！這個字已經有印象了。",
     "保持節奏，再一張就好。",

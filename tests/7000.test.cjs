@@ -125,7 +125,6 @@ test('load, level switching and positions are independent', () => {
 test('flip, previous/next wrap and random selection', () => {
   const { api, nodes } = boot();
   api.flipCard(); assert.ok(nodes.get('#flashcard').classList.contains('is-flipped'));
-  assert.equal(nodes.get('.card-front').attributes['aria-hidden'], 'true');
   api.moveCard(-1); assert.equal(api.currentWord().id, 'l1-1025');
   assert.equal(api.state.flipped, false);
   api.moveCard(1); assert.equal(api.currentWord().id, 'l1-0001');
@@ -139,12 +138,12 @@ test('search and empty state disable all study actions', () => {
   }
   api.state.query = 'no-such-word-987654321'; api.refresh();
   assert.equal(api.currentWord(), null);
-  for (const id of ['flashcard','reviewButton','learnedButton','speakButton','flipButton','nextButton']) {
+  for (const id of ['reviewToggle','learnedToggle','pronounceButton','flipButton','nextButton']) {
     assert.equal(nodes.get('#' + id).disabled, true);
   }
   api.moveCard(1); api.randomCard(); api.flipCard(); api.setCurrentStatus('learned');
   api.clearFilters(); assert.equal(api.state.queue.length, 1025);
-  assert.equal(nodes.get('#learnedButton').disabled, false);
+  assert.equal(nodes.get('#learnedToggle').disabled, false);
 });
 
 test('statuses are exclusive and never write TOEIC data', () => {
@@ -152,9 +151,11 @@ test('statuses are exclusive and never write TOEIC data', () => {
   const { api, storage, writes } = boot({ 'flipwords.cards.v1': sentinel });
   api.setCurrentStatus('learned');
   assert.equal(JSON.parse(storage[P])['l1-0001'], 'learned');
+  api.state.statusFilter = 'learned'; api.refresh();
   api.setCurrentStatus('review');
   assert.equal(JSON.parse(storage[P])['l1-0001'], 'review');
-  api.setCurrentStatus('review');
+  api.state.statusFilter = 'review'; api.refresh();
+  api.setCurrentStatus('new');
   assert.equal(JSON.parse(storage[P])['l1-0001'], undefined);
   assert.equal(storage['flipwords.cards.v1'], sentinel);
   assert.ok(writes.every(key => key === P || key === F));
@@ -167,19 +168,16 @@ test('marking a filtered card advances to the adjacent remaining card', () => {
   assert.equal(api.currentWord().id, 'l1-0051');
   api.state.statusFilter = 'learned'; api.refresh();
   assert.equal(api.state.queue.length, 1);
-  api.setCurrentStatus('learned'); assert.equal(api.state.queue.length, 0);
+  api.setCurrentStatus('new'); assert.equal(api.state.queue.length, 0);
 });
 
-test('pagination and empty search hide load-more', () => {
+test('library list follows the active pile and search', () => {
   const { nodes, api } = boot();
-  assert.equal(nodes.get('#wordList').children.length, 90);
-  nodes.get('#loadMoreButton').listeners.click();
-  assert.equal(nodes.get('#wordList').children.length, 180);
+  assert.equal(nodes.get('#cardList').children.length, 1025);
   api.state.query = 'abbreviate'; api.setLevel(6);
   api.state.query = 'abbreviate'; api.refresh();
-  assert.equal(nodes.get('#loadMoreButton').hidden, true);
-  const css = fs.readFileSync(path.join(root, '7000/styles.css'), 'utf8');
-  assert.match(css, /\[hidden\]\s*\{\s*display:\s*none\s*!important/);
+  assert.equal(nodes.get('#cardList').children.length, 1);
+  assert.equal(api.currentWord().word, 'abbreviate');
 });
 
 test('malformed JSON, storage objects and disabled storage do not crash', () => {
@@ -191,7 +189,7 @@ test('malformed JSON, storage objects and disabled storage do not crash', () => 
   }
   const blocked = boot({}, { blockedStorage: true });
   blocked.api.setCurrentStatus('learned');
-  assert.match(blocked.nodes.get('#toast').textContent, /無法儲存/);
+  assert.match(blocked.nodes.get('#voiceStatus').textContent, /無法儲存/);
 });
 
 test('keyboard leaves editable inputs/native Space activation alone', () => {
@@ -232,6 +230,11 @@ test('static paths resolve and 7000 loads no TOEIC/Firebase scripts', () => {
     }
   }
   assert.ok(!/firebase|\.\.\/app\.js|\.\.\/vocab-data\.js/.test(html));
+  assert.match(html, /href="\.\.\/styles\.css"/);
+  assert.match(html, /href="\.\.\/ui-enhancements\.css"/);
+  assert.match(html, /class="study-panel"/);
+  assert.match(html, /class="library-panel"/);
+  assert.match(html, /data-storage-scope="gsat-7000"/);
   assert.match(html, /maximum-scale=1/);
   assert.match(html, /user-scalable=no/);
   assert.match(html, /src="\.\.\/touch-zoom-fix\.js"/);
