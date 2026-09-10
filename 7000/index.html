@@ -12,6 +12,7 @@
     <link rel="stylesheet" href="../responsive-layout.css" />
     <link rel="stylesheet" href="../pile-switcher-fix.css" />
     <link rel="stylesheet" href="../site-nav.css" />
+    <link rel="stylesheet" href="../firebase-sync.css" />
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
@@ -27,7 +28,7 @@
         <span class="brand-mark" aria-hidden="true">F</span>
         <div><p class="eyebrow">English flashcards</p><h1>FlipWords</h1><p class="brand-subtitle">你的 7000 單字自習室</p></div>
       </div>
-      <div class="topbar-actions" aria-label="網站與顯示設定">
+      <div class="topbar-actions" aria-label="網站、顯示與帳號設定">
         <nav class="site-tabs" aria-label="字庫切換">
           <a class="site-tab" href="../"><span class="site-tab-icon" aria-hidden="true">🃏</span><span>多益單字</span></a>
           <a class="site-tab is-active" href="./" aria-current="page"><span class="site-tab-icon" aria-hidden="true">🧭</span><span>7000 單字</span></a>
@@ -37,7 +38,18 @@
           <option value="cosmos">星空圖書館</option><option value="cafe">暖光咖啡廳</option>
         </select></label>
         <button class="ghost-button sound-button" id="soundToggle" type="button" aria-pressed="true"><span aria-hidden="true">🔊</span><span>互動音效</span></button>
-        <span class="storage-badge">獨立本機進度</span>
+        <div class="account-controls" aria-label="Google 帳號與雲端同步">
+          <button class="google-sign-in-button" id="googleSignInButton" type="button">
+            <span class="google-mark" aria-hidden="true">G</span>
+            <span>Google 登入</span>
+          </button>
+          <div class="signed-in-account" id="signedInAccount" hidden>
+            <img class="account-avatar" id="accountAvatar" alt="" referrerpolicy="no-referrer" />
+            <span class="account-name" id="accountName"></span>
+            <button class="account-sign-out" id="googleSignOutButton" type="button">登出</button>
+          </div>
+          <span class="cloud-sync-status" id="cloudSyncStatus" data-state="local" aria-live="polite">本機儲存</span>
+        </div>
       </div>
     </header>
 
@@ -67,9 +79,11 @@
             <strong class="card-word" id="cardWord">Loading…</strong><span class="card-phonetic" id="cardPhonetic"></span><span class="card-pos" id="cardPartOfSpeech"></span>
             <span class="card-note">點擊卡片翻面</span><span class="card-corner corner-bottom" aria-hidden="true">✧</span>
           </span>
-          <span class="flashcard-face flashcard-back">
+          <span class="flashcard-face flashcard-back" id="cardBack">
             <span class="card-corner corner-top" aria-hidden="true">✦</span><span class="card-tag" id="cardBackTag">中文意思</span>
-            <strong class="card-meaning" id="cardMeaning">載入中</strong><span class="card-related" id="cardSource"></span>
+            <strong class="card-meaning" id="cardMeaning">載入中</strong>
+            <span class="card-enrichment" id="cardEnrichment"></span>
+            <span class="card-related" id="cardSource"></span>
             <span class="card-corner corner-bottom" aria-hidden="true">✧</span>
           </span>
         </div>
@@ -92,10 +106,10 @@
       <section class="library-panel" aria-labelledby="libraryTitle">
         <div class="panel-heading"><div><p class="eyebrow">Level library</p><h2 id="libraryTitle">Level 1 單字庫</h2></div><span class="pill" id="visibleCount">0 張</span></div>
         <div class="filters library-filters">
-          <label><span>搜尋</span><input id="searchInput" type="search" placeholder="搜尋英文、中文、音標或詞性" /></label>
+          <label><span>搜尋</span><input id="searchInput" type="search" placeholder="搜尋單字、詞義、近義詞或例句" /></label>
           <label><span>Level</span><select id="levelSelect" aria-label="選擇 Level"></select></label>
         </div>
-        <p class="library-note">內容來自原始 PDF；學習進度不會和多益字庫混在一起。</p>
+        <p class="library-note">翻面查看近義詞、例句與翻譯。近義詞依標示義項選用，請留意用法差異。</p>
         <div class="card-list" id="cardList" aria-live="polite"></div>
       </section>
     </main>
@@ -103,7 +117,14 @@
     <div class="feedback-layer" id="feedbackLayer" aria-hidden="true"></div>
     <div class="action-toast" id="actionToast" role="status" aria-live="polite"></div>
     <div class="achievement-popover" id="achievementPopover" role="status" aria-live="polite"><span aria-hidden="true">🏆</span><div><strong>專注力升級！</strong><small>你已連續完成 5 次學習動作</small></div></div>
-    <script src="vocab-data.js"></script><script src="app.js"></script>
+    <script src="vocab-data.js?v=20260910"></script>
+    <script src="enrichment-data.js?v=20260908"></script>
+    <script src="app.js?v=20260910"></script>
     <script src="../ui-enhancements.js"></script><script src="../touch-zoom-fix.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/12.16.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/12.16.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore-compat.js"></script>
+    <script src="firebase-sync-7000.js?v=20260910"></script>
   </body>
 </html>
+

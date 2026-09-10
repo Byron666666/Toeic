@@ -10,6 +10,7 @@
   const STORAGE_KEY = "flipwords:gsat-7000:progress:v1";
   const PREFS_KEY = "flipwords:gsat-7000:preferences:v1";
   const numberFormat = new Intl.NumberFormat("zh-TW");
+  const enrichment = window.GSAT_7000_ENRICHMENT?.entries || {};
   const levelNames = {
     1: "核心基礎", 2: "日常進階", 3: "中階應用",
     4: "高階常用", 5: "進階字彙", 6: "挑戰字彙",
@@ -28,6 +29,7 @@
     cardTag: $("#cardTag"), cardBackTag: $("#cardBackTag"), cardWord: $("#cardWord"),
     cardPhonetic: $("#cardPhonetic"), cardPartOfSpeech: $("#cardPartOfSpeech"),
     cardMeaning: $("#cardMeaning"), cardSource: $("#cardSource"),
+    cardEnrichment: $("#cardEnrichment"), cardBack: $("#cardBack"),
     pronounceButton: $("#pronounceButton"), voiceStatus: $("#voiceStatus"), flipButton: $("#flipButton"),
     previousButton: $("#previousButton"), nextButton: $("#nextButton"), shuffleButton: $("#shuffleButton"),
     reviewToggle: $("#reviewToggle"), learnedToggle: $("#learnedToggle"),
@@ -46,6 +48,11 @@
   function writeStorage(key, value) {
     try {
       localStorage.setItem(key, JSON.stringify(value));
+      if (typeof window.dispatchEvent === "function" && typeof window.CustomEvent === "function") {
+        window.dispatchEvent(new window.CustomEvent("flipwords:local-change", {
+          detail: { scope: "gsat-7000", key },
+        }));
+      }
     } catch {
       elements.voiceStatus.textContent = "瀏覽器目前無法儲存進度。";
     }
@@ -80,8 +87,36 @@
     if (getStatus(word.id) !== state.statusFilter) return false;
     const query = state.query.trim().toLocaleLowerCase("en");
     if (!query) return true;
-    return [word.word, word.meaning, word.phonetic, word.partOfSpeech]
+    return [word.word, word.meaning, word.phonetic, word.partOfSpeech,
+      ...(enrichment[word.id] || []).flat()]
       .join(" ").toLocaleLowerCase("en").includes(query);
+  }
+
+  function renderEnrichment(word) {
+    const fragment = document.createDocumentFragment();
+    const senses = word ? enrichment[word.id] : null;
+    const text = (className, value, lang) => {
+      const span = document.createElement("span");
+      span.className = className;
+      span.textContent = value;
+      if (lang) span.setAttribute("lang", lang);
+      return span;
+    };
+    if (word && !senses?.length) {
+      fragment.append(text("enrichment-note", "用法資料暫時無法載入，請重新整理頁面。"));
+    }
+    (senses || []).forEach(([sense, synonyms, example, translation, note]) => {
+      const item = document.createElement("span");
+      item.className = "enrichment-sense";
+      item.append(text("enrichment-sense-label", sense));
+      item.append(text("enrichment-synonyms", `同義／近義詞：${synonyms}`));
+      item.append(text("enrichment-example", example, "en"));
+      item.append(text("enrichment-translation", translation, "zh-Hant"));
+      if (note) item.append(text("enrichment-note", note));
+      fragment.append(item);
+    });
+    elements.cardEnrichment.replaceChildren(fragment);
+    elements.cardBack.scrollTop = 0;
   }
 
   function persistPreferences() {
@@ -154,6 +189,7 @@
 
   function renderCard() {
     const word = currentWord();
+    renderEnrichment(word);
     const index = word ? state.queue.findIndex((item) => item.id === word.id) : -1;
     elements.positionText.textContent = word
       ? `${numberFormat.format(index + 1)} / ${numberFormat.format(state.queue.length)}` : "0 / 0";
@@ -185,7 +221,7 @@
 
     const status = getStatus(word.id);
     elements.cardTag.textContent = `Level ${state.level}`;
-    elements.cardBackTag.textContent = "中文意思";
+    elements.cardBackTag.textContent = "詞義與用法";
     elements.cardWord.textContent = word.word;
     elements.cardWord.className = "card-word";
     if (word.word.length > 26) elements.cardWord.classList.add("is-long-phrase");
@@ -194,12 +230,12 @@
     elements.cardPartOfSpeech.textContent = word.partOfSpeech || "詞性未標示";
     elements.cardMeaning.textContent = word.meaning;
     elements.cardMeaning.classList.toggle("is-long", word.meaning.length > 42);
-    elements.cardSource.textContent = `來源：PDF 第 ${word.sourcePage} 頁`;
+    elements.cardSource.textContent = `詞條來源：PDF 第 ${word.sourcePage} 頁 · 例句與近義詞為補充內容`;
     elements.reviewToggle.checked = status === "review";
     elements.learnedToggle.checked = status === "learned";
     elements.flashcard.setAttribute(
       "aria-label",
-      state.flipped ? `回到 ${word.word} 的英文卡面` : `查看 ${word.word} 的中文意思`,
+      state.flipped ? `回到 ${word.word} 的英文卡面` : `查看 ${word.word} 的詞義、近義詞與例句`,
     );
   }
 
@@ -428,3 +464,4 @@
 
   refresh({ preserveCurrent: true });
 })();
+
