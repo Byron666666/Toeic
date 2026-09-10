@@ -93,16 +93,56 @@
       .join(" ").toLocaleLowerCase("en").includes(query);
   }
 
+  function text(className, value, lang) {
+    const span = document.createElement("span");
+    span.className = className;
+    span.textContent = value;
+    if (lang) span.setAttribute("lang", lang);
+    return span;
+  }
+
+  function exampleWordVariants(word) {
+    const variants = new Set();
+    (word?.word || "").split("/").map((part) => part.trim()).filter(Boolean).forEach((part) => {
+      variants.add(part);
+      const optionalEnding = part.match(/^(.*)\(([^)]+)\)$/);
+      if (optionalEnding) {
+        variants.add(optionalEnding[1]);
+        variants.add(`${optionalEnding[1]}${optionalEnding[2]}`);
+      }
+    });
+    return [...variants].filter((variant) => /[A-Za-z]/.test(variant))
+      .sort((left, right) => right.length - left.length);
+  }
+
+  function renderExample(example, word) {
+    const span = text("enrichment-example", "", "en");
+    const variants = exampleWordVariants(word).map((variant) =>
+      variant.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
+    if (!variants.length) {
+      span.textContent = example;
+      return span;
+    }
+    const matcher = new RegExp(`\\b(?:${variants.join("|")})\\b`, "gi");
+    let cursor = 0;
+    let found = false;
+    for (const match of example.matchAll(matcher)) {
+      found = true;
+      if (match.index > cursor) span.append(text("", example.slice(cursor, match.index)));
+      span.append(text("example-word", match[0]));
+      cursor = match.index + match[0].length;
+    }
+    if (!found) {
+      span.textContent = example;
+      return span;
+    }
+    if (cursor < example.length) span.append(text("", example.slice(cursor)));
+    return span;
+  }
+
   function renderEnrichment(word) {
     const fragment = document.createDocumentFragment();
     const senses = word ? enrichment[word.id] : null;
-    const text = (className, value, lang) => {
-      const span = document.createElement("span");
-      span.className = className;
-      span.textContent = value;
-      if (lang) span.setAttribute("lang", lang);
-      return span;
-    };
     if (word && !senses?.length) {
       fragment.append(text("enrichment-note", "?冽?鞈??急??⊥?頛嚗???渡????));
     }
@@ -111,7 +151,7 @@
       item.className = "enrichment-sense";
       item.append(text("enrichment-sense-label", sense));
       item.append(text("enrichment-synonyms", `?儔嚗?蝢抵?嚗?{synonyms}`));
-      item.append(text("enrichment-example", example, "en"));
+      item.append(renderExample(example, word));
       item.append(text("enrichment-translation", translation, "zh-Hant"));
       if (note) item.append(text("enrichment-note", note));
       fragment.append(item);
