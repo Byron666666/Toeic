@@ -126,6 +126,15 @@ select,
   text-align: center;
 }
 
+.enrichment-example .example-word {
+  color: #5eead4;
+  font-weight: 900;
+  text-decoration: underline;
+  text-decoration-color: #f5b74b;
+  text-decoration-thickness: 0.12em;
+  text-underline-offset: 0.14em;
+}
+
 .enrichment-translation {
   color: #d8e6f2;
   font-size: 1rem;
