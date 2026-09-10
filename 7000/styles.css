@@ -44,12 +44,14 @@ select,
   font-size: 0.82rem;
   font-weight: 850;
   cursor: pointer;
+  transition: transform 160ms ease, background 160ms ease, color 160ms ease, box-shadow 160ms ease;
 }
 
 .level-button:hover,
 .level-button:focus-visible {
   color: var(--ink);
   border-color: var(--theme-a);
+  transform: translateY(-1px);
   outline: none;
 }
 
@@ -70,6 +72,83 @@ select,
   font-size: clamp(1.2rem, 3vw, 1.75rem);
 }
 
+.flashcard-back {
+  justify-content: safe center;
+  gap: 1rem;
+}
+
+.flashcard-back > * {
+  flex-shrink: 0;
+}
+
+.flashcard-back .card-meaning,
+.flashcard-back .card-meaning.is-long {
+  max-height: none;
+  overflow: visible;
+  font-size: clamp(1.25rem, 3vw, 1.7rem);
+  line-height: 1.4;
+}
+
+.card-enrichment {
+  display: grid;
+  gap: 1rem;
+  width: min(32rem, 100%);
+  margin-inline: auto;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+.enrichment-sense {
+  display: grid;
+  gap: 0.55rem;
+  padding-top: 0.85rem;
+  border-top: 1px solid var(--line);
+}
+
+.enrichment-sense-label {
+  color: var(--muted);
+  font-size: 0.85rem;
+  font-weight: 750;
+}
+
+.enrichment-synonyms {
+  color: var(--ink);
+  font-size: 0.95rem;
+  line-height: 1.6;
+  text-align: center;
+}
+
+.enrichment-example {
+  color: #fff4d8;
+  font-size: 1.12rem;
+  line-height: 1.75;
+  font-weight: 760;
+  text-align: center;
+}
+
+.enrichment-translation {
+  color: #d8e6f2;
+  font-size: 1rem;
+  line-height: 1.65;
+  font-weight: 720;
+  text-align: center;
+}
+
+.enrichment-note {
+  display: block;
+  color: var(--muted);
+  font-size: 0.83rem;
+  line-height: 1.65;
+  padding-left: 0.65rem;
+  border-left: 2px solid var(--theme-a);
+}
+
+#cardSource {
+  font-size: 0.73rem;
+  line-height: 1.6;
+  opacity: 0.8;
+}
+
 .library-filters {
   grid-template-columns: minmax(0, 1fr) minmax(8rem, 0.38fr);
 }
@@ -82,7 +161,7 @@ select,
 }
 
 .card-list {
-  max-height: min(52rem, 74vh);
+  max-height: min(46rem, 70vh);
 }
 
 .word-row {
@@ -151,3 +230,4 @@ select,
     grid-template-columns: minmax(0, 1fr) !important;
   }
 }
+
