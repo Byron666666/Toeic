@@ -34,10 +34,13 @@ fetch("articles.html").then(r=>r.text()).then(html=>{
   const day28='<script src="articles-day028.js">'+close;
   const day29='<script src="articles-day029.js">'+close;
   const day30='<script src="articles-day030.js">'+close;
+  const day31='<script src="articles-day031.js">'+close;
+  const day32='<script src="articles-day032.js">'+close;
+  const day33='<script src="articles-day033.js">'+close;
   const coverageFix='<script src="articles-day017-018-fix.js">'+close;
   const fix='<script src="articles-flip-fix.js">'+close;
   document.open();
-  document.write(html.replace(marker, extra+day4+day5+day6+day7+day8+day9+day10+day11+day12+day13+day14+day15+day16+day17+day18+day19+day20+day21+day22+day23+day24+day25+day26+day27+day28+day29+day30+coverageFix+marker+fix));
+  document.write(html.replace(marker, extra+day4+day5+day6+day7+day8+day9+day10+day11+day12+day13+day14+day15+day16+day17+day18+day19+day20+day21+day22+day23+day24+day25+day26+day27+day28+day29+day30+day31+day32+day33+coverageFix+marker+fix));
   document.close();
 });
 </script>
