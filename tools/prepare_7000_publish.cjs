@@ -11,7 +11,7 @@ const scope = process.argv.includes('--toeic') ? '' : '7000/';
 const paths = process.argv.includes('--all')
   ? ['example-matcher.js', 'example-corrections.js', 'app.js', 'styles.css', '7000/app.js', 'index.html', '7000/index.html', '7000/styles.css']
   : ['example-matcher.js', 'example-corrections.js', ...['app.js', 'styles.css', 'index.html'].map(name => scope + name)];
-const files = paths.map(file => {
+const files = ['touch-zoom-fix.js', ...paths].map(file => {
   const bytes = fs.readFileSync(path.join(root, file));
   const content = new TextDecoder('utf-8', { fatal: true }).decode(bytes);
   assert.ok(!/[\uFFFD\uE000-\uF8FF]/u.test(content), `${file}: damaged text`);
