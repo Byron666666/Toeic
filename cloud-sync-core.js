@@ -184,6 +184,13 @@
     function changed() {
       if (applying) return;
       const next = copy(readLocal());
+      // Once an account has signed out, keep the cleared local view isolated
+      // from that account's outbox. A later sign-in will load the selected
+      // account's cache or confirmed cloud state.
+      if (!user && owner) {
+        observed = next;
+        return;
+      }
       const changes = differences(observed, next);
       observed = next;
       if (!changes.length) return;
@@ -345,6 +352,10 @@
 
     function start(nextUser) {
       if (user?.uid && user.uid === nextUser?.uid) return;
+      const previousAccountId = user?.uid || owner || null;
+      const leavingAccount = Boolean(previousAccountId && !nextUser);
+      const switchingAccount = Boolean(previousAccountId && nextUser?.uid
+        && previousAccountId !== nextUser.uid);
       generation += 1;
       unsubscribe?.();
       unsubscribe = null;
@@ -354,7 +365,17 @@
       ready = false;
       exists = false;
       user = nextUser;
-      if (!user) return;
+      function initializeLocalState() {
+        applying = true;
+        try { applyLocal(copy(fromCloud({}))); }
+        finally { applying = false; }
+        observed = copy(readLocal());
+      }
+
+      if (!user) {
+        if (leavingAccount) initializeLocalState();
+        return;
+      }
 
       if (queueOwner !== user.uid) {
         persistQueue();
@@ -375,20 +396,14 @@
         persistQueue();
         if (guest) write(previousGuestKey, null);
       }
-      const switchedAccount = owner && owner !== user.uid;
       owner = user.uid;
       write(ownerKey, owner);
+      if (switchingAccount) initializeLocalState();
       const cached = read(cacheKey(), null);
       base = cached?.state || null;
       receipts = cached?.receipts || {};
       serverRevision = Number(cached?.revision || 0);
       if (base !== null) display();
-      else if (switchedAccount) {
-        applying = true;
-        try { applyLocal(compose(fromCloud({}), outstanding())); }
-        finally { applying = false; }
-        observed = copy(readLocal());
-      }
       report();
       listen();
     }
