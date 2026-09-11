@@ -127,10 +127,10 @@ select,
 }
 
 .enrichment-example .example-word {
-  color: #5eead4;
-  font-weight: 900;
+  color: inherit;
+  font-weight: inherit;
   text-decoration: underline;
-  text-decoration-color: #f5b74b;
+  text-decoration-color: currentColor;
   text-decoration-thickness: 0.12em;
   text-underline-offset: 0.14em;
 }
