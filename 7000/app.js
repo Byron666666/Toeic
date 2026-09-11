@@ -59,6 +59,7 @@
   }
 
   const levels = new Map(data.levels.map((item) => [Number(item.level), item]));
+  const levelButtons = new Map();
   const preferences = readStorage(PREFS_KEY, {});
   const progress = readStorage(STORAGE_KEY, {});
   const savedPositions = preferences.currentByLevel;
@@ -174,18 +175,25 @@
   }
 
   function renderLevelControls() {
-    const fragment = document.createDocumentFragment();
-    data.levels.forEach((levelData) => {
-      const level = Number(levelData.level);
-      const button = document.createElement("button");
-      button.type = "button";
-      button.className = `level-button${level === state.level ? " is-active" : ""}`;
-      button.dataset.level = String(level);
-      button.setAttribute("aria-pressed", String(level === state.level));
-      button.textContent = `Level ${level}`;
-      fragment.append(button);
+    if (!levelButtons.size) {
+      const fragment = document.createDocumentFragment();
+      data.levels.forEach((levelData) => {
+        const level = Number(levelData.level);
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "level-button";
+        button.dataset.level = String(level);
+        button.textContent = `Level ${level}`;
+        levelButtons.set(level, button);
+        fragment.append(button);
+      });
+      elements.levelGrid.replaceChildren(fragment);
+    }
+    levelButtons.forEach((button, level) => {
+      const active = level === state.level;
+      button.classList.toggle("is-active", active);
+      button.setAttribute("aria-pressed", String(active));
     });
-    elements.levelGrid.replaceChildren(fragment);
     elements.levelSelect.value = String(state.level);
   }
 
