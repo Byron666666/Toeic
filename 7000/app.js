@@ -45,20 +45,29 @@
     }
   }
 
+  let suppressLocalChange = false;
+
   function writeStorage(key, value) {
     try {
-      localStorage.setItem(key, JSON.stringify(value));
-      if (typeof window.dispatchEvent === "function" && typeof window.CustomEvent === "function") {
+      const serialized = JSON.stringify(value);
+      if (localStorage.getItem(key) === serialized) return false;
+      localStorage.setItem(key, serialized);
+      if (!suppressLocalChange && typeof window.dispatchEvent === "function" && typeof window.CustomEvent === "function") {
         window.dispatchEvent(new window.CustomEvent("flipwords:local-change", {
           detail: { scope: "gsat-7000", key },
         }));
       }
+      return true;
     } catch {
       elements.voiceStatus.textContent = "瀏覽器目前無法儲存進度。";
+      return false;
     }
   }
 
   const levels = new Map(data.levels.map((item) => [Number(item.level), item]));
+  const levelForId = new Map(
+    data.levels.flatMap((levelData) => levelData.words.map((word) => [String(word.id), Number(levelData.level)])),
+  );
   const levelButtons = new Map();
   const preferences = readStorage(PREFS_KEY, {});
   const progress = readStorage(STORAGE_KEY, {});
@@ -76,6 +85,39 @@
     queue: [],
     lastRandomId: null,
   };
+
+  function sanitizeCloudProgress(value) {
+    const nextProgress = {};
+    if (!value || typeof value !== "object" || Array.isArray(value)) return nextProgress;
+    Object.entries(value).forEach(([id, status]) => {
+      if (levelForId.has(String(id)) && (status === "review" || status === "learned")) {
+        nextProgress[String(id)] = status;
+      }
+    });
+    return nextProgress;
+  }
+
+  function sanitizeCloudPreferences(value) {
+    const nextPreferences = {};
+    if (!value || typeof value !== "object" || Array.isArray(value)) return nextPreferences;
+
+    const level = Number(value.level);
+    if (levels.has(level)) nextPreferences.level = level;
+    if (["new", "review", "learned"].includes(value.pile)) nextPreferences.pile = value.pile;
+
+    const currentByLevel = {};
+    if (value.currentByLevel && typeof value.currentByLevel === "object" && !Array.isArray(value.currentByLevel)) {
+      Object.entries(value.currentByLevel).forEach(([levelKey, id]) => {
+        const normalizedLevel = Number(levelKey);
+        const normalizedId = String(id);
+        if (levels.has(normalizedLevel) && levelForId.get(normalizedId) === normalizedLevel) {
+          currentByLevel[String(normalizedLevel)] = normalizedId;
+        }
+      });
+    }
+    nextPreferences.currentByLevel = currentByLevel;
+    return nextPreferences;
+  }
 
   function currentLevelData() {
     return levels.get(state.level);
@@ -433,6 +475,33 @@
     elements.searchInput.value = "";
     refresh({ preserveCurrent: true });
   }
+
+  function applyCloudState(nextState = {}) {
+    const nextProgress = sanitizeCloudProgress(nextState.progress);
+    const nextPreferences = sanitizeCloudPreferences(nextState.preferences);
+
+    suppressLocalChange = true;
+    try {
+      Object.keys(progress).forEach((id) => delete progress[id]);
+      Object.assign(progress, nextProgress);
+
+      state.level = Number.isFinite(nextPreferences.level) && levels.has(nextPreferences.level)
+        ? nextPreferences.level : firstLevel;
+      state.statusFilter = ["new", "review", "learned"].includes(nextPreferences.pile)
+        ? nextPreferences.pile : "new";
+      state.currentByLevel = { ...(nextPreferences.currentByLevel || {}) };
+      state.currentId = state.currentByLevel[state.level] || null;
+      state.flipped = false;
+
+      writeStorage(STORAGE_KEY, progress);
+      persistPreferences();
+      refresh({ preserveCurrent: true });
+    } finally {
+      suppressLocalChange = false;
+    }
+  }
+
+  window.FlipWords7000 = { applyCloudState };
 
   data.levels.forEach((levelData) => {
     const option = document.createElement("option");

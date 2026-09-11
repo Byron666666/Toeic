@@ -64,7 +64,12 @@ function boot(initial = {}, {
     createDocumentFragment: () => new Element('fragment'),
     addEventListener: (name, fn) => { docEvents[name] = fn; },
   };
-  const window = { setTimeout: () => 1, clearTimeout: () => {} };
+  const localChanges = [];
+  const window = {
+    setTimeout: () => 1, clearTimeout: () => {},
+    CustomEvent: function (type, options) { this.type = type; this.detail = options.detail; },
+    dispatchEvent: event => { localChanges.push(event); },
+  };
   if (speech) window.speechSynthesis = { cancel() {}, speak(utterance) { spoken.push(utterance); } };
   const random = Array.isArray(randomValues) && randomValues.length
     ? (() => randomValues.shift()) : Math.random;
@@ -91,8 +96,37 @@ function boot(initial = {}, {
     randomCard, setCurrentStatus, speakCurrentWord, clearFilters
   }; })();`);
   vm.runInContext(instrumented, context);
-  return { api: window.testAPI, data: window.GSAT_7000_DATA, nodes, storage, writes, docEvents, spoken, document };
+  return { api: window.testAPI, cloudApi: window.FlipWords7000, localChanges, data: window.GSAT_7000_DATA, nodes, storage, writes, docEvents, spoken, document };
 }
+
+test('cloud progress refreshes the visible card without emitting local edits', () => {
+  const { api, cloudApi, storage, localChanges } = boot();
+  const before = localChanges.length;
+  cloudApi.applyCloudState({
+    progress: { 'l2-0003': 'learned', 'l1-0002': 'review' },
+    preferences: { level: 2, pile: 'learned', currentByLevel: { 2: 'l2-0003' } },
+  });
+  assert.equal(api.state.level, 2);
+  assert.equal(api.state.statusFilter, 'learned');
+  assert.equal(api.currentWord().id, 'l2-0003');
+  assert.equal(JSON.parse(storage[P])['l1-0002'], 'review');
+  assert.equal(localChanges.length, before);
+});
+
+test('an empty cloud account clears the previous account progress and positions', () => {
+  const { api, cloudApi, storage, localChanges } = boot({
+    [P]: JSON.stringify({ 'l3-0004': 'learned' }),
+    [F]: JSON.stringify({ level: 3, pile: 'learned', currentByLevel: { 3: 'l3-0004' } }),
+  });
+  const before = localChanges.length;
+  cloudApi.applyCloudState({ progress: {}, preferences: { currentByLevel: {} } });
+  assert.deepEqual(JSON.parse(storage[P]), {});
+  assert.equal(api.state.level, 1);
+  assert.equal(api.state.statusFilter, 'new');
+  assert.equal(api.state.currentByLevel[3], undefined);
+  assert.equal(api.currentWord().id, 'l1-0001');
+  assert.equal(localChanges.length, before);
+});
 
 test('six levels, valid unique IDs and traceable source records', () => {
   const { data } = boot();
@@ -277,7 +311,8 @@ test('static paths resolve and 7000 loads its isolated Firebase sync', () => {
   assert.match(html, /firebase-app-compat\.js/);
   assert.match(html, /firebase-auth-compat\.js/);
   assert.match(html, /firebase-firestore-compat\.js/);
-  assert.match(html, /firebase-sync-7000\.js\?v=20260910/);
+  assert.match(html, /firebase-sync-7000\.js\?v=20260911-sync1/);
+  assert.ok(html.indexOf('cloud-sync-core.js') < html.indexOf('firebase-sync-7000.js'));
   assert.match(html, /id="googleSignInButton"/);
   assert.match(html, /href="\.\.\/firebase-sync\.css"/);
   assert.match(html, /href="\.\.\/styles\.css"/);

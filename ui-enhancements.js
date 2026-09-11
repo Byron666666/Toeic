@@ -21,6 +21,7 @@
   const today = new Date().toISOString().slice(0, 10);
   const storageScope = root.dataset.storageScope ? `.${root.dataset.storageScope}` : "";
   const key = `flipwords${storageScope}.ui.${today}`;
+  const changeScope = root.dataset.storageScope || "toeic";
   const messages = [
     "漂亮！這個字已經有印象了。",
     "保持節奏，再一張就好。",
@@ -39,8 +40,49 @@
   let soundOn = localStorage.getItem("flipwords.sound") !== "off";
   let audioContext = null;
 
+  function emitLocalChange(storageKey) {
+    if (typeof window.dispatchEvent !== "function" || typeof window.CustomEvent !== "function") return;
+    window.dispatchEvent(new window.CustomEvent("flipwords:local-change", {
+      detail: { scope: changeScope, key: storageKey },
+    }));
+  }
+
   function save() {
-    localStorage.setItem(key, JSON.stringify(state));
+    try {
+      const serialized = JSON.stringify(state);
+      if (localStorage.getItem(key) === serialized) return false;
+      localStorage.setItem(key, serialized);
+      emitLocalChange(key);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  function savePreference(storageKey, value) {
+    try {
+      if (localStorage.getItem(storageKey) === value) return false;
+      localStorage.setItem(storageKey, value);
+      emitLocalChange(storageKey);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  function refreshFromCloud() {
+    try {
+      const storedState = JSON.parse(localStorage.getItem(key) || "null");
+      if (storedState && typeof storedState === "object" && !Array.isArray(storedState)) {
+        state = storedState;
+      } else state = { xp: 0, combo: 0 };
+    } catch {
+      state = { xp: 0, combo: 0 };
+    }
+    soundOn = localStorage.getItem("flipwords.sound") !== "off";
+    theme.value = localStorage.getItem("flipwords.theme") || "sakura";
+    root.dataset.theme = theme.value;
+    render();
   }
 
   function render() {
@@ -277,7 +319,7 @@
 
   theme.addEventListener("change", () => {
     root.dataset.theme = theme.value;
-    localStorage.setItem("flipwords.theme", theme.value);
+    savePreference("flipwords.theme", theme.value);
     show("場景已切換 ✨");
   });
 
@@ -289,7 +331,7 @@
     }
 
     soundOn = nextSoundState;
-    localStorage.setItem("flipwords.sound", soundOn ? "on" : "off");
+    savePreference("flipwords.sound", soundOn ? "on" : "off");
     render();
 
     if (soundOn) {
@@ -326,6 +368,12 @@
     if (event.target instanceof HTMLSelectElement && !isHiddenOrDisabled(event.target)) {
       playGentleSound("select");
     }
+  });
+
+  window.addEventListener("flipwords:cloud-applied", (event) => {
+    const scope = event.detail?.scope;
+    if (scope && scope !== changeScope) return;
+    refreshFromCloud();
   });
 
   render();

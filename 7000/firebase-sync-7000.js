@@ -14,12 +14,8 @@
   const APP_DOCUMENT_ID = "flipwords-gsat-7000";
   const SYNC_SCHEMA_VERSION = 1;
   const LIBRARY_VERSION = "gsat-7000-v1";
-  const SAVE_DELAY_MS = 1200;
-  const MAX_DOCUMENT_BYTES = 900_000;
   const STORAGE_KEY = "flipwords:gsat-7000:progress:v1";
   const PREFS_KEY = "flipwords:gsat-7000:preferences:v1";
-  const LOCAL_UPDATED_KEY = "flipwords.gsat-7000.cloudLocalUpdatedAt.v1";
-
   const signInButton = document.querySelector("#googleSignInButton");
   const signOutButton = document.querySelector("#googleSignOutButton");
   const accountView = document.querySelector("#signedInAccount");
@@ -32,21 +28,25 @@
     return;
   }
 
+  if (!window.FlipWordsCloudSync || typeof window.FlipWordsCloudSync.create !== "function") {
+    console.warn("7000 Firebase sync could not start because cloud-sync-core.js is missing.");
+    syncStatus.textContent = "同步程式載入失敗，請重新整理";
+    syncStatus.dataset.state = "error";
+    return;
+  }
+
   const firebaseApp = firebase.apps.length ? firebase.app() : firebase.initializeApp(firebaseConfig);
   const auth = firebaseApp.auth();
   const db = firebaseApp.firestore();
   const provider = new firebase.auth.GoogleAuthProvider();
   provider.setCustomParameters({ prompt: "select_account" });
 
-  const levelIds = new Set(
-    (window.GSAT_7000_DATA?.levels || []).flatMap((level) => level.words.map((word) => word.id)),
+  const levels = window.GSAT_7000_DATA?.levels || [];
+  const levelIds = new Set(levels.flatMap((level) => level.words.map((word) => String(word.id))));
+  const levelNumbers = new Set(levels.map((level) => String(level.level)));
+  const levelForId = new Map(
+    levels.flatMap((level) => level.words.map((word) => [String(word.id), String(level.level)])),
   );
-  const levelNumbers = new Set((window.GSAT_7000_DATA?.levels || []).map((level) => String(level.level)));
-
-  let currentUser = null;
-  let saveTimer = 0;
-  let suppressCloudSave = false;
-  let syncInProgress = false;
 
   auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch((error) => {
     console.warn("Could not enable persistent Firebase login for 7000.", error);
@@ -55,6 +55,25 @@
   function setSyncStatus(message, state = "idle") {
     syncStatus.textContent = message;
     syncStatus.dataset.state = state;
+  }
+
+  function describeError(error) {
+    const code = String(error?.code || error?.message || "");
+    if (code.includes("cloud-document-too-large")) return "進度資料過大，將保留在本機。";
+    if (code.includes("unauthorized-domain")) return "目前網站網域尚未加入 Firebase 授權網域。";
+    if (code.includes("popup-blocked")) return "Google 登入視窗被瀏覽器阻擋，請允許彈出視窗。";
+    if (code.includes("permission-denied")) return "Firestore 拒絕存取，請檢查 Firebase 權限設定。";
+    if (code.includes("failed-precondition") || code.includes("not-found")) {
+      return "Firebase Firestore 尚未完成設定。";
+    }
+    if (code.includes("network") || code.includes("offline") || navigator.onLine === false) {
+      return "目前離線，雲端進度會在恢復連線後重試。";
+    }
+    return "雲端同步暫時失敗，請稍後再試。";
+  }
+
+  function getUserDocument(user) {
+    return db.collection("users").doc(user.uid).collection("apps").doc(APP_DOCUMENT_ID);
   }
 
   function readJson(key, fallback) {
@@ -66,21 +85,13 @@
     }
   }
 
-  function getLocalUpdatedAt() {
-    return Number(localStorage.getItem(LOCAL_UPDATED_KEY) || 0);
-  }
-
-  function markLocalChanged(timestamp = Date.now()) {
-    localStorage.setItem(LOCAL_UPDATED_KEY, String(timestamp));
-    return timestamp;
-  }
-
   function sanitizeProgress(value) {
     const progress = {};
     if (!value || typeof value !== "object" || Array.isArray(value)) return progress;
     Object.entries(value).forEach(([id, status]) => {
-      if (levelIds.has(id) && (status === "review" || status === "learned")) {
-        progress[id] = status;
+      const normalizedId = String(id);
+      if (levelIds.has(normalizedId) && (status === "review" || status === "learned")) {
+        progress[normalizedId] = status;
       }
     });
     return progress;
@@ -90,16 +101,17 @@
     const preferences = {};
     if (!value || typeof value !== "object" || Array.isArray(value)) return preferences;
 
-    const level = String(Number(value.level));
-    if (levelNumbers.has(level)) preferences.level = Number(level);
+    const level = Number(value.level);
+    if (levelNumbers.has(String(level))) preferences.level = level;
     if (["new", "review", "learned"].includes(value.pile)) preferences.pile = value.pile;
 
     const currentByLevel = {};
     if (value.currentByLevel && typeof value.currentByLevel === "object" && !Array.isArray(value.currentByLevel)) {
       Object.entries(value.currentByLevel).forEach(([levelKey, id]) => {
         const normalizedLevel = String(Number(levelKey));
-        if (levelNumbers.has(normalizedLevel) && levelIds.has(String(id))) {
-          currentByLevel[normalizedLevel] = String(id);
+        const normalizedId = String(id);
+        if (levelNumbers.has(normalizedLevel) && levelForId.get(normalizedId) === normalizedLevel) {
+          currentByLevel[normalizedLevel] = normalizedId;
         }
       });
     }
@@ -107,124 +119,67 @@
     return preferences;
   }
 
-  function getLocalSnapshot() {
+  function normalizeState(value) {
+    const source = value && typeof value === "object" && !Array.isArray(value) ? value : {};
     return {
-      progress: sanitizeProgress(readJson(STORAGE_KEY, {})),
-      preferences: sanitizePreferences(readJson(PREFS_KEY, {})),
+      progress: sanitizeProgress(source.progress),
+      preferences: sanitizePreferences(source.preferences),
     };
   }
 
-  function createCloudSnapshot() {
-    const local = getLocalSnapshot();
-    const updatedAtMs = Date.now();
+  function readLocal() {
+    return normalizeState({
+      progress: readJson(STORAGE_KEY, {}),
+      preferences: readJson(PREFS_KEY, {}),
+    });
+  }
+
+  function fromCloud(snapshotData) {
+    return normalizeState(snapshotData);
+  }
+
+  function toCloud(state) {
+    const normalized = normalizeState(state);
     return {
       schemaVersion: SYNC_SCHEMA_VERSION,
       libraryVersion: LIBRARY_VERSION,
-      progress: local.progress,
-      preferences: local.preferences,
-      updatedAtMs,
-      updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+      progress: normalized.progress,
+      preferences: normalized.preferences,
     };
   }
 
-  function applyCloudSnapshot(snapshot) {
-    const cloudProgress = sanitizeProgress(snapshot.progress);
-    const cloudPreferences = sanitizePreferences(snapshot.preferences);
-    suppressCloudSave = true;
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(cloudProgress));
-      localStorage.setItem(PREFS_KEY, JSON.stringify(cloudPreferences));
-      markLocalChanged(Number(snapshot.updatedAtMs || Date.now()));
-    } finally {
-      suppressCloudSave = false;
-    }
-    setSyncStatus("已載入雲端進度", "synced");
-    window.setTimeout(() => window.location.reload(), 250);
-  }
-
-  function getUserDocument(user = currentUser) {
-    return db.collection("users").doc(user.uid).collection("apps").doc(APP_DOCUMENT_ID);
-  }
-
-  function humanizeFirebaseError(error) {
-    const code = String(error?.code || "");
-    if (code.includes("unauthorized-domain")) {
-      return "請先把目前網站網域加入 Firebase 授權網域";
-    }
-    if (code.includes("popup-blocked")) {
-      return "瀏覽器封鎖了登入視窗";
-    }
-    if (code.includes("permission-denied")) {
-      return "Firestore 規則尚未允許此帳號存取";
-    }
-    if (code.includes("failed-precondition") || code.includes("not-found")) {
-      return "請先在 Firebase 建立 Firestore 資料庫";
-    }
-    if (code.includes("network-request-failed") || !navigator.onLine) {
-      return "目前離線，進度仍保存在這台裝置";
-    }
-    return "雲端同步暫時無法使用";
-  }
-
-  async function uploadToCloud() {
-    if (!currentUser || suppressCloudSave || syncInProgress) return;
-
-    syncInProgress = true;
-    setSyncStatus("儲存中…", "syncing");
-    try {
-      const snapshot = createCloudSnapshot();
-      const estimatedBytes = new Blob([JSON.stringify(snapshot)]).size;
-      if (estimatedBytes > MAX_DOCUMENT_BYTES) throw new Error("cloud-document-too-large");
-      await getUserDocument().set(snapshot);
-      markLocalChanged(snapshot.updatedAtMs);
-      setSyncStatus("已同步", "synced");
-    } catch (error) {
-      console.error("Could not save 7000 progress to Firebase.", error);
-      setSyncStatus(
-        String(error?.message || "").includes("cloud-document-too-large")
-          ? "進度資料過大，請先匯出備份"
-          : humanizeFirebaseError(error),
-        "error",
-      );
-    } finally {
-      syncInProgress = false;
-    }
-  }
-
-  function scheduleCloudSave() {
-    if (!currentUser || suppressCloudSave) return;
-    window.clearTimeout(saveTimer);
-    setSyncStatus("等待同步…", "pending");
-    saveTimer = window.setTimeout(uploadToCloud, SAVE_DELAY_MS);
-  }
-
-  async function loadOrCreateCloudData(user) {
-    setSyncStatus("正在讀取雲端進度…", "syncing");
-    try {
-      const documentSnapshot = await getUserDocument(user).get();
-      if (!documentSnapshot.exists) {
-        await uploadToCloud();
-        return;
+  function applyLocal(state) {
+    const normalized = normalizeState(state);
+    if (typeof window.FlipWords7000?.applyCloudState === "function") {
+      window.FlipWords7000.applyCloudState(normalized);
+    } else {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(normalized.progress));
+        localStorage.setItem(PREFS_KEY, JSON.stringify(normalized.preferences));
+      } catch (error) {
+        console.warn("Could not apply 7000 cloud state locally.", error);
       }
+    }
 
-      const cloudData = documentSnapshot.data() || {};
-      const cloudUpdatedAt = Number(cloudData.updatedAtMs || 0);
-      const localUpdatedAt = getLocalUpdatedAt();
-
-      if (cloudUpdatedAt > localUpdatedAt) {
-        applyCloudSnapshot(cloudData);
-        return;
-      }
-      if (localUpdatedAt > cloudUpdatedAt) {
-        await uploadToCloud();
-        return;
-      }
-      setSyncStatus("已同步", "synced");
-    } catch (error) {
-      console.error("Could not load 7000 progress from Firebase.", error);
-      setSyncStatus(humanizeFirebaseError(error), "error");
+    if (typeof window.dispatchEvent === "function" && typeof window.CustomEvent === "function") {
+      window.dispatchEvent(new window.CustomEvent("flipwords:cloud-applied", {
+        detail: { scope: "gsat-7000" },
+      }));
     }
   }
+
+  const cloudSync = window.FlipWordsCloudSync.create({
+    db,
+    getDocument: (user) => getUserDocument(user),
+    storagePrefix: "flipwords-gsat-7000",
+    readLocal,
+    applyLocal,
+    fromCloud,
+    toCloud,
+    setStatus: setSyncStatus,
+    describeError,
+    maxBytes: 900000,
+  });
 
   function renderAccount(user) {
     const signedIn = Boolean(user);
@@ -254,45 +209,59 @@
         return;
       }
       console.error("Google sign-in failed for 7000.", error);
-      setSyncStatus(humanizeFirebaseError(error), "error");
+      setSyncStatus(describeError(error), "error");
     } finally {
       signInButton.disabled = false;
+    }
+  }
+
+  async function flushWithTimeout() {
+    let timeoutId = 0;
+    const timeout = new Promise((resolve) => {
+      timeoutId = window.setTimeout(() => resolve(false), 10000);
+    });
+    try {
+      return await Promise.race([Promise.resolve().then(() => cloudSync.flush()), timeout]);
+    } finally {
+      window.clearTimeout(timeoutId);
     }
   }
 
   async function signOutFromGoogle() {
     signOutButton.disabled = true;
     try {
-      window.clearTimeout(saveTimer);
-      await uploadToCloud();
+      const flushed = await flushWithTimeout();
+      if (!flushed) {
+        setSyncStatus("尚有進度尚未同步，請保持登入後再試。", "error");
+        return;
+      }
       await auth.signOut();
     } catch (error) {
-      console.error("7000 sign-out failed.", error);
-      setSyncStatus("登出失敗，請再試一次", "error");
+      console.error("Sign-out failed for 7000.", error);
+      setSyncStatus(describeError(error), "error");
     } finally {
       signOutButton.disabled = false;
     }
   }
 
   window.addEventListener("flipwords:local-change", (event) => {
-    if (event.detail?.scope === "gsat-7000") {
-      markLocalChanged();
-      scheduleCloudSave();
-    }
+    if (event.detail?.scope === "gsat-7000") cloudSync.changed();
   });
-  window.addEventListener("online", scheduleCloudSave);
   signInButton.addEventListener("click", signInWithGoogle);
   signOutButton.addEventListener("click", signOutFromGoogle);
 
   auth.getRedirectResult().catch((error) => {
     console.error("Google redirect sign-in failed for 7000.", error);
-    setSyncStatus(humanizeFirebaseError(error), "error");
+    setSyncStatus(describeError(error), "error");
   });
 
   auth.onAuthStateChanged(async (user) => {
-    currentUser = user;
     renderAccount(user);
-    if (user) await loadOrCreateCloudData(user);
+    try {
+      await cloudSync.start(user);
+    } catch (error) {
+      console.error("Could not start 7000 cloud sync.", error);
+      setSyncStatus(describeError(error), "error");
+    }
   });
 })();
-

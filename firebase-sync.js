@@ -13,22 +13,23 @@
 
   const APP_DOCUMENT_ID = "flipwords-toeic";
   const SYNC_SCHEMA_VERSION = 1;
-  const SAVE_DELAY_MS = 1200;
-  const MAX_DOCUMENT_BYTES = 900_000;
-  const LOCAL_UPDATED_KEY = `flipwords.${STORAGE_SCOPE}.cloudLocalUpdatedAt.v1`;
-
   const signInButton = document.querySelector("#googleSignInButton");
   const signOutButton = document.querySelector("#googleSignOutButton");
   const accountView = document.querySelector("#signedInAccount");
   const accountAvatar = document.querySelector("#accountAvatar");
   const accountName = document.querySelector("#accountName");
   const syncStatus = document.querySelector("#cloudSyncStatus");
-  const themeSelect = document.querySelector("#themeSelect");
-  const soundToggle = document.querySelector("#soundToggle");
-  const flashcard = document.querySelector("#flashcard");
 
-  if (!window.firebase || !signInButton || typeof cards === "undefined") {
+  if (!window.firebase || !signInButton || !signOutButton || !accountView || !syncStatus
+    || typeof cards === "undefined") {
     console.warn("Firebase sync could not start because required scripts or page elements are missing.");
+    return;
+  }
+
+  if (!window.FlipWordsCloudSync || typeof window.FlipWordsCloudSync.create !== "function") {
+    console.warn("Firebase sync could not start because cloud-sync-core.js is missing.");
+    syncStatus.textContent = "同步程式載入失敗，請重新整理";
+    syncStatus.dataset.state = "error";
     return;
   }
 
@@ -39,9 +40,7 @@
   provider.setCustomParameters({ prompt: "select_account" });
 
   let currentUser = null;
-  let saveTimer = 0;
   let suppressCloudSave = false;
-  let syncInProgress = false;
 
   auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch((error) => {
     console.warn("Could not enable persistent Firebase login.", error);
@@ -52,225 +51,262 @@
     syncStatus.dataset.state = state;
   }
 
-  function getLocalUpdatedAt() {
-    return Number(localStorage.getItem(LOCAL_UPDATED_KEY) || 0);
+  function describeError(error) {
+    const code = String(error?.code || error?.message || "");
+    if (code.includes("cloud-document-too-large")) return "資料過大，請先匯出備份";
+    if (code.includes("unauthorized-domain")) return "目前網站網域尚未加入 Firebase 授權網域。";
+    if (code.includes("popup-blocked")) return "Google 登入視窗被瀏覽器阻擋，請允許彈出視窗。";
+    if (code.includes("permission-denied")) return "Firestore 拒絕存取，請檢查 Firebase 權限設定。";
+    if (code.includes("failed-precondition") || code.includes("not-found")) {
+      return "Firebase Firestore 尚未完成設定。";
+    }
+    if (code.includes("network") || code.includes("offline") || navigator.onLine === false) {
+      return "目前離線，雲端進度會在恢復連線後重試。";
+    }
+    return "雲端同步暫時失敗，請稍後再試。";
   }
 
-  function markLocalChanged(timestamp = Date.now()) {
-    localStorage.setItem(LOCAL_UPDATED_KEY, String(timestamp));
-    return timestamp;
+  function getUserDocument(user) {
+    return db.collection("users").doc(user.uid).collection("apps").doc(APP_DOCUMENT_ID);
+  }
+
+  function safeStorageGet(key) {
+    try {
+      return localStorage.getItem(key);
+    } catch {
+      return null;
+    }
+  }
+
+  function isDailyStateKey(key) {
+    return /^flipwords\.ui\.\d{4}-\d{2}-\d{2}$/.test(String(key));
+  }
+
+  function normalizePreferences(value) {
+    const preferences = {};
+    if (!value || typeof value !== "object" || Array.isArray(value)) return preferences;
+
+    if (typeof value.theme === "string") preferences.theme = value.theme;
+    if (typeof value.sound === "string") preferences.sound = value.sound;
+    if (typeof value.dailyStateKey === "string" && isDailyStateKey(value.dailyStateKey)) {
+      preferences.dailyStateKey = value.dailyStateKey;
+      if (value.dailyState && typeof value.dailyState === "object" && !Array.isArray(value.dailyState)) {
+        preferences.dailyState = { ...value.dailyState };
+      }
+    }
+    return preferences;
   }
 
   function getDailyState() {
     const key = `flipwords.ui.${new Date().toISOString().slice(0, 10)}`;
     try {
+      const value = JSON.parse(safeStorageGet(key) || "null");
       return {
         key,
-        value: JSON.parse(localStorage.getItem(key) || '{"xp":0,"combo":0}'),
+        value: value && typeof value === "object" && !Array.isArray(value)
+          ? { ...value }
+          : { xp: 0, combo: 0 },
       };
-    } catch (error) {
+    } catch {
       return { key, value: { xp: 0, combo: 0 } };
     }
   }
 
-  function createCloudSnapshot() {
-    const cardsById = new Map(cards.map((card) => [card.id, card]));
-    const cardsByKey = new Map(cards.map((card) => [cardKey(card), card]));
-    const builtInIds = new Set(builtInCards.map((card) => card.id));
-    const builtInKeys = new Set(builtInCards.map(cardKey));
+  const builtInIds = new Set(builtInCards.map((card) => String(card.id)));
+  const builtInKeys = new Set(builtInCards.map((card) => cardKey(card)));
+
+  function normalizeProgress(value) {
     const progress = {};
-    const deletedBuiltInIds = [];
-
-    builtInCards.forEach((builtInCard) => {
-      const savedCard = cardsById.get(builtInCard.id) || cardsByKey.get(cardKey(builtInCard));
-      if (!savedCard) {
-        deletedBuiltInIds.push(builtInCard.id);
-        return;
-      }
-
-      if (savedCard.review) {
-        progress[builtInCard.id] = "review";
-      } else if (savedCard.learned) {
-        progress[builtInCard.id] = "learned";
+    if (!value || typeof value !== "object" || Array.isArray(value)) return progress;
+    Object.entries(value).forEach(([id, status]) => {
+      const normalizedId = String(id);
+      if (builtInIds.has(normalizedId) && (status === "review" || status === "learned")) {
+        progress[normalizedId] = status;
       }
     });
+    return progress;
+  }
 
-    const customCards = cards
-      .filter(
-        (card) =>
-          !DEMO_CARD_IDS.has(card.id) &&
-          !builtInIds.has(card.id) &&
-          !builtInKeys.has(cardKey(card)),
-      )
-      .map((card) => ({ ...card }));
+  function normalizeDeletedBuiltIn(value) {
+    const deletedBuiltInById = {};
+    if (Array.isArray(value)) {
+      value.forEach((id) => {
+        const normalizedId = String(id);
+        if (builtInIds.has(normalizedId)) deletedBuiltInById[normalizedId] = true;
+      });
+      return deletedBuiltInById;
+    }
+    if (!value || typeof value !== "object") return deletedBuiltInById;
+    Object.entries(value).forEach(([id, deleted]) => {
+      const normalizedId = String(id);
+      if (builtInIds.has(normalizedId) && deleted === true) deletedBuiltInById[normalizedId] = true;
+    });
+    return deletedBuiltInById;
+  }
 
-    const dailyState = getDailyState();
-    const updatedAtMs = Date.now();
+  function normalizeCustomCards(value) {
+    const customCardsById = {};
+    const entries = Array.isArray(value)
+      ? value.map((card, index) => [String(card?.id || `cloud-${index}`), card])
+      : value && typeof value === "object"
+        ? Object.entries(value)
+        : [];
 
+    entries.forEach(([entryId, rawCard], index) => {
+      if (!rawCard || typeof rawCard !== "object" || Array.isArray(rawCard)) return;
+      const candidate = { ...rawCard, id: String(rawCard.id || entryId) };
+      const card = sanitizeCard(candidate, `cloud-${index}`);
+      if (!card || builtInIds.has(card.id) || builtInKeys.has(cardKey(card))
+        || DEMO_CARD_IDS.has(card.id)) return;
+      customCardsById[card.id] = { ...card };
+    });
+    return customCardsById;
+  }
+
+  function normalizeState(value) {
+    const source = value && typeof value === "object" && !Array.isArray(value) ? value : {};
     return {
-      schemaVersion: SYNC_SCHEMA_VERSION,
-      libraryVersion: BUILT_IN_LIBRARY_VERSION,
-      progress,
-      deletedBuiltInIds,
-      customCards,
-      preferences: {
-        theme: localStorage.getItem("flipwords.theme") || "sakura",
-        sound: localStorage.getItem("flipwords.sound") || "on",
-        dailyStateKey: dailyState.key,
-        dailyState: dailyState.value,
-      },
-      updatedAtMs,
-      updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+      progress: normalizeProgress(source.progress),
+      deletedBuiltInById: normalizeDeletedBuiltIn(source.deletedBuiltInById ?? source.deletedBuiltInIds),
+      customCardsById: normalizeCustomCards(source.customCardsById ?? source.customCards),
+      preferences: normalizePreferences(source.preferences),
     };
   }
 
-  function applyCloudSnapshot(snapshot) {
+  function readLocal() {
+    const byId = new Map(cards.map((card) => [String(card.id), card]));
+    const byKey = new Map(cards.map((card) => [cardKey(card), card]));
+    const progress = {};
+    const deletedBuiltInById = {};
+
+    builtInCards.forEach((builtInCard) => {
+      const id = String(builtInCard.id);
+      const savedCard = byId.get(id) || byKey.get(cardKey(builtInCard));
+      if (!savedCard) {
+        deletedBuiltInById[id] = true;
+      } else if (savedCard.review) {
+        progress[id] = "review";
+      } else if (savedCard.learned) {
+        progress[id] = "learned";
+      }
+    });
+
+    const customCardsById = {};
+    cards.forEach((card) => {
+      if (DEMO_CARD_IDS.has(card.id) || builtInIds.has(String(card.id))
+        || builtInKeys.has(cardKey(card))) return;
+      const sanitized = sanitizeCard(card, String(card.id));
+      if (sanitized) customCardsById[sanitized.id] = { ...sanitized };
+    });
+
+    const dailyState = getDailyState();
+    return normalizeState({
+      progress,
+      deletedBuiltInById,
+      customCardsById,
+      preferences: {
+        theme: safeStorageGet("flipwords.theme") || "sakura",
+        sound: safeStorageGet("flipwords.sound") || "on",
+        dailyStateKey: dailyState.key,
+        dailyState: dailyState.value,
+      },
+    });
+  }
+
+  function fromCloud(snapshotData) {
+    return normalizeState(snapshotData);
+  }
+
+  function toCloud(state) {
+    const normalized = normalizeState(state);
+    return {
+      schemaVersion: SYNC_SCHEMA_VERSION,
+      libraryVersion: BUILT_IN_LIBRARY_VERSION,
+      progress: normalized.progress,
+      deletedBuiltInIds: Object.keys(normalized.deletedBuiltInById)
+        .filter((id) => normalized.deletedBuiltInById[id] === true),
+      customCards: Object.values(normalized.customCardsById),
+      preferences: normalized.preferences,
+    };
+  }
+
+  function applyLocal(state) {
+    const normalized = normalizeState(state);
+    const previousCard = typeof getCurrentCard === "function" ? getCurrentCard() : null;
+    const previousCardId = previousCard?.id ? String(previousCard.id) : "";
+    const previousCardKey = previousCard ? cardKey(previousCard) : "";
+    const previousPile = ["unlearned", "review", "learned"].includes(activePile)
+      ? activePile : "unlearned";
+    const previousFlipped = Boolean(isFlipped);
+    const restoredBuiltInCards = cloneCards(builtInCards)
+      .filter((card) => normalized.deletedBuiltInById[String(card.id)] !== true)
+      .map((card) => {
+        const status = normalized.progress[String(card.id)];
+        return {
+          ...card,
+          review: status === "review",
+          learned: status === "learned",
+        };
+      });
+    const restoredCustomCards = Object.values(normalized.customCardsById)
+      .map((card, index) => sanitizeCard(card, `cloud-${index}`))
+      .filter(Boolean);
+
     suppressCloudSave = true;
-
     try {
-      const deletedIds = new Set(
-        Array.isArray(snapshot.deletedBuiltInIds) ? snapshot.deletedBuiltInIds.map(String) : [],
-      );
-      const progress = snapshot.progress && typeof snapshot.progress === "object" ? snapshot.progress : {};
-
-      const restoredBuiltInCards = cloneCards(builtInCards)
-        .filter((card) => !deletedIds.has(card.id))
-        .map((card) => {
-          const state = progress[card.id];
-          return {
-            ...card,
-            review: state === "review",
-            learned: state === "learned",
-          };
-        });
-
-      const restoredCustomCards = (Array.isArray(snapshot.customCards) ? snapshot.customCards : [])
-        .map((card, index) => sanitizeCard(card, `cloud-${index}`))
-        .filter(Boolean);
-
       cards = [...restoredBuiltInCards, ...restoredCustomCards];
-      activePile = "unlearned";
+      activePile = previousPile;
       currentIndex = 0;
-      isFlipped = false;
-
+      isFlipped = previousFlipped;
       localStorage.setItem(LIBRARY_VERSION_KEY, BUILT_IN_LIBRARY_VERSION);
       localStorage.setItem(STORAGE_KEY, JSON.stringify(cards));
-
-      const preferences = snapshot.preferences || {};
-      if (typeof preferences.theme === "string") {
-        localStorage.setItem("flipwords.theme", preferences.theme);
-      }
-      if (typeof preferences.sound === "string") {
-        localStorage.setItem("flipwords.sound", preferences.sound);
-      }
-      if (typeof preferences.dailyStateKey === "string" && preferences.dailyState) {
+      const preferences = normalized.preferences;
+      localStorage.setItem("flipwords.theme", typeof preferences.theme === "string" ? preferences.theme : "sakura");
+      localStorage.setItem("flipwords.sound", typeof preferences.sound === "string" ? preferences.sound : "on");
+      const todayKey = `flipwords.ui.${new Date().toISOString().slice(0, 10)}`;
+      const dailyState = preferences.dailyStateKey === todayKey
+        && preferences.dailyState && typeof preferences.dailyState === "object"
+        ? preferences.dailyState : { xp: 0, combo: 0 };
+      localStorage.setItem(todayKey, JSON.stringify(dailyState));
+      if (typeof preferences.dailyStateKey === "string" && isDailyStateKey(preferences.dailyStateKey)
+        && preferences.dailyStateKey !== todayKey && preferences.dailyState
+        && typeof preferences.dailyState === "object") {
         localStorage.setItem(preferences.dailyStateKey, JSON.stringify(preferences.dailyState));
       }
-
-      markLocalChanged(Number(snapshot.updatedAtMs || Date.now()));
       render();
+
+      if (previousCardId || previousCardKey) {
+        const nextIndex = filteredCards.findIndex((card) =>
+          (previousCardId && String(card.id) === previousCardId)
+          || (previousCardKey && cardKey(card) === previousCardKey));
+        if (nextIndex >= 0) {
+          currentIndex = nextIndex;
+          render();
+        }
+      }
     } finally {
       suppressCloudSave = false;
     }
-  }
 
-  function getUserDocument(user = currentUser) {
-    return db.collection("users").doc(user.uid).collection("apps").doc(APP_DOCUMENT_ID);
-  }
-
-  function humanizeFirebaseError(error) {
-    const code = String(error?.code || "");
-    if (code.includes("unauthorized-domain")) {
-      return "請先把 byron666666.github.io 加入 Firebase 授權網域";
-    }
-    if (code.includes("popup-blocked")) {
-      return "瀏覽器封鎖了登入視窗";
-    }
-    if (code.includes("permission-denied")) {
-      return "Firestore 規則尚未允許此帳號存取";
-    }
-    if (code.includes("failed-precondition") || code.includes("not-found")) {
-      return "請先在 Firebase 建立 Firestore 資料庫";
-    }
-    if (code.includes("network-request-failed") || !navigator.onLine) {
-      return "目前離線，進度仍保存在這台裝置";
-    }
-    return "雲端同步暫時無法使用";
-  }
-
-  async function uploadToCloud() {
-    if (!currentUser || suppressCloudSave || syncInProgress) {
-      return;
-    }
-
-    syncInProgress = true;
-    setSyncStatus("儲存中…", "syncing");
-
-    try {
-      const snapshot = createCloudSnapshot();
-      const estimatedBytes = new Blob([JSON.stringify(snapshot)]).size;
-      if (estimatedBytes > MAX_DOCUMENT_BYTES) {
-        throw new Error("cloud-document-too-large");
-      }
-
-      await getUserDocument().set(snapshot);
-      markLocalChanged(snapshot.updatedAtMs);
-      setSyncStatus("已同步", "synced");
-    } catch (error) {
-      console.error("Could not save FlipWords progress to Firebase.", error);
-      setSyncStatus(
-        String(error?.message || "").includes("cloud-document-too-large")
-          ? "自訂單字過多，請先匯出備份"
-          : humanizeFirebaseError(error),
-        "error",
-      );
-    } finally {
-      syncInProgress = false;
+    if (typeof window.dispatchEvent === "function" && typeof window.CustomEvent === "function") {
+      window.dispatchEvent(new window.CustomEvent("flipwords:cloud-applied", {
+        detail: { scope: "toeic" },
+      }));
     }
   }
 
-  function scheduleCloudSave() {
-    if (!currentUser || suppressCloudSave) {
-      return;
-    }
-
-    window.clearTimeout(saveTimer);
-    setSyncStatus("等待同步…", "pending");
-    saveTimer = window.setTimeout(uploadToCloud, SAVE_DELAY_MS);
-  }
-
-  async function loadOrCreateCloudData(user) {
-    setSyncStatus("正在讀取雲端進度…", "syncing");
-
-    try {
-      const documentSnapshot = await getUserDocument(user).get();
-      if (!documentSnapshot.exists) {
-        await uploadToCloud();
-        return;
-      }
-
-      const cloudData = documentSnapshot.data() || {};
-      const cloudUpdatedAt = Number(cloudData.updatedAtMs || 0);
-      const localUpdatedAt = getLocalUpdatedAt();
-
-      if (cloudUpdatedAt > localUpdatedAt) {
-        applyCloudSnapshot(cloudData);
-        setSyncStatus("已載入雲端進度", "synced");
-        window.setTimeout(() => window.location.reload(), 250);
-        return;
-      }
-
-      if (localUpdatedAt > cloudUpdatedAt) {
-        await uploadToCloud();
-        return;
-      }
-
-      setSyncStatus("已同步", "synced");
-    } catch (error) {
-      console.error("Could not load FlipWords progress from Firebase.", error);
-      setSyncStatus(humanizeFirebaseError(error), "error");
-    }
-  }
+  const cloudSync = window.FlipWordsCloudSync.create({
+    db,
+    getDocument: (user) => getUserDocument(user),
+    storagePrefix: "flipwords-toeic",
+    readLocal,
+    applyLocal,
+    fromCloud,
+    toCloud,
+    setStatus: setSyncStatus,
+    describeError,
+    maxBytes: 900000,
+  });
 
   function renderAccount(user) {
     const signedIn = Boolean(user);
@@ -285,17 +321,13 @@
     }
 
     accountName.textContent = user.displayName || user.email || "Google 使用者";
-    if (user.photoURL) {
-      accountAvatar.src = user.photoURL;
-    } else {
-      accountAvatar.removeAttribute("src");
-    }
+    if (user.photoURL) accountAvatar.src = user.photoURL;
+    else accountAvatar.removeAttribute("src");
   }
 
   async function signInWithGoogle() {
     signInButton.disabled = true;
     setSyncStatus("正在開啟 Google 登入…", "syncing");
-
     try {
       await auth.signInWithPopup(provider);
     } catch (error) {
@@ -304,21 +336,36 @@
         return;
       }
       console.error("Google sign-in failed.", error);
-      setSyncStatus(humanizeFirebaseError(error), "error");
+      setSyncStatus(describeError(error), "error");
     } finally {
       signInButton.disabled = false;
+    }
+  }
+
+  async function flushWithTimeout() {
+    let timeoutId = 0;
+    const timeout = new Promise((resolve) => {
+      timeoutId = window.setTimeout(() => resolve(false), 10000);
+    });
+    try {
+      return await Promise.race([Promise.resolve().then(() => cloudSync.flush()), timeout]);
+    } finally {
+      window.clearTimeout(timeoutId);
     }
   }
 
   async function signOutFromGoogle() {
     signOutButton.disabled = true;
     try {
-      window.clearTimeout(saveTimer);
-      await uploadToCloud();
+      const flushed = await flushWithTimeout();
+      if (!flushed) {
+        setSyncStatus("尚有進度尚未同步，請保持登入後再試。", "error");
+        return;
+      }
       await auth.signOut();
     } catch (error) {
       console.error("Sign-out failed.", error);
-      setSyncStatus("登出失敗，請再試一次", "error");
+      setSyncStatus(describeError(error), "error");
     } finally {
       signOutButton.disabled = false;
     }
@@ -326,44 +373,32 @@
 
   const originalSaveCards = saveCards;
   saveCards = function saveCardsWithCloudSync(...args) {
+    const before = safeStorageGet(STORAGE_KEY);
     const result = originalSaveCards(...args);
-    if (!suppressCloudSave) {
-      markLocalChanged();
-      scheduleCloudSave();
-    }
+    const after = safeStorageGet(STORAGE_KEY);
+    if (!suppressCloudSave && before !== after) cloudSync.changed();
     return result;
   };
 
-  [soundToggle, flashcard].forEach((element) => {
-    element?.addEventListener("click", () => {
-      if (!suppressCloudSave) {
-        markLocalChanged();
-        scheduleCloudSave();
-      }
-    });
+  window.addEventListener("flipwords:local-change", (event) => {
+    if (event.detail?.scope === "toeic") cloudSync.changed();
   });
-
-  themeSelect?.addEventListener("change", () => {
-    if (!suppressCloudSave) {
-      markLocalChanged();
-      scheduleCloudSave();
-    }
-  });
-
   signInButton.addEventListener("click", signInWithGoogle);
   signOutButton.addEventListener("click", signOutFromGoogle);
-  window.addEventListener("online", scheduleCloudSave);
 
   auth.getRedirectResult().catch((error) => {
     console.error("Google redirect sign-in failed.", error);
-    setSyncStatus(humanizeFirebaseError(error), "error");
+    setSyncStatus(describeError(error), "error");
   });
 
   auth.onAuthStateChanged(async (user) => {
     currentUser = user;
     renderAccount(user);
-    if (user) {
-      await loadOrCreateCloudData(user);
+    try {
+      await cloudSync.start(user);
+    } catch (error) {
+      console.error("Could not start FlipWords cloud sync.", error);
+      setSyncStatus(describeError(error), "error");
     }
   });
 })();
