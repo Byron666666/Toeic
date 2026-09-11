@@ -147,6 +147,25 @@ test('flip, previous/next wrap and random selection', () => {
   api.randomCard(); assert.notEqual(api.currentWord().id, 'l1-0001');
 });
 
+test('Level controls remain attached during repeated clicks and dropdown changes', () => {
+  const { api, nodes } = boot();
+  const grid = nodes.get('#levelGrid');
+  const buttons = [...grid.children];
+  for (const level of [6, 2, 5, 1, 4, 3, 6, 1]) {
+    const button = buttons[level - 1];
+    grid.listeners.click({ target: { closest: () => button } });
+    assert.equal(api.state.level, level);
+    assert.ok(api.currentWord().id.startsWith(`l${level}-`));
+    assert.equal(nodes.get('#levelSelect').value, String(level));
+    for (let index = 0; index < 6; index++) assert.equal(grid.children[index], buttons[index]);
+    assert.equal(button.attributes['aria-pressed'], 'true');
+  }
+  nodes.get('#levelSelect').value = '3';
+  nodes.get('#levelSelect').listeners.change();
+  assert.equal(api.state.level, 3);
+  assert.equal(buttons[2].attributes['aria-pressed'], 'true');
+});
+
 test('random selection avoids the previous random card after manual navigation', () => {
   const { api } = boot({}, { randomValues: [0.999, 0.999] });
   api.randomCard();
@@ -268,7 +287,7 @@ test('static paths resolve and 7000 loads its isolated Firebase sync', () => {
   assert.match(html, /data-storage-scope="gsat-7000"/);
   assert.match(html, /maximum-scale=1/);
   assert.match(html, /user-scalable=no/);
-  assert.match(html, /src="\.\.\/touch-zoom-fix\.js"/);
+  assert.match(html, /src="\.\.\/touch-zoom-fix\.js(?:\?[^"\s]+)?"/);
   const css = fs.readFileSync(path.join(root, '7000/styles.css'), 'utf8');
   assert.match(css, /touch-action:\s*manipulation/);
 });
