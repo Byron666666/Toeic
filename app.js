@@ -115,6 +115,7 @@ let cards = loadCards();
 let filteredCards = [];
 let activePile = "unlearned";
 let currentIndex = 0;
+let lastRandomWord = null;
 let isFlipped = false;
 let availableVoices = [];
 let voiceStatusTimer = 0;
@@ -468,6 +469,26 @@ function setFlashcardDisabled(disabled) {
   elements.flashcard.tabIndex = disabled ? -1 : 0;
 }
 
+function renderExample(card) {
+  const example = card.example || "尚未填寫例句";
+  elements.cardExample.textContent = "";
+  const ranges = card.example ? window.FlipWordsExampleMatcher?.findRanges(example, card.word) || [] : [];
+  if (!ranges.length) {
+    elements.cardExample.textContent = example;
+    return;
+  }
+  let cursor = 0;
+  for (const [start, end] of ranges) {
+    elements.cardExample.append(document.createTextNode(example.slice(cursor, start)));
+    const word = document.createElement("span");
+    word.className = "example-word";
+    word.textContent = example.slice(start, end);
+    elements.cardExample.append(word);
+    cursor = end;
+  }
+  elements.cardExample.append(document.createTextNode(example.slice(cursor)));
+}
+
 function renderCurrentCard() {
   const card = getCurrentCard();
   elements.flashcard.classList.toggle("is-flipped", isFlipped);
@@ -507,8 +528,10 @@ function renderCurrentCard() {
   elements.cardPartOfSpeech.textContent = card.partOfSpeech || "詞性尚未填寫";
   elements.cardMeaning.textContent = card.meaning;
   elements.cardSynonyms.textContent = card.synonyms ? `同義詞：${normalizeSynonyms(card.synonyms)}` : "";
-  elements.cardExample.textContent = card.example || "尚未填寫例句";
-  elements.cardExampleMeaning.textContent = card.exampleMeaning || "";
+  const corrected = window.FlipWordsExampleCorrections?.(card.word, card.example, card.exampleMeaning)
+    || { example: card.example, translation: card.exampleMeaning };
+  renderExample({ ...card, example: corrected.example });
+  elements.cardExampleMeaning.textContent = corrected.translation || "";
   elements.reviewToggle.checked = Boolean(card.review);
   elements.reviewToggle.disabled = false;
   elements.learnedToggle.checked = Boolean(card.learned);
@@ -660,12 +683,13 @@ function shuffleCard() {
     return;
   }
 
-  let nextIndex = currentIndex;
-  while (nextIndex === currentIndex) {
-    nextIndex = Math.floor(Math.random() * filteredCards.length);
-  }
-
-  currentIndex = nextIndex;
+  const currentWord = normalizeWordKey(getCurrentCard()?.word);
+  const candidates = filteredCards.filter(card => normalizeWordKey(card.word) !== currentWord && normalizeWordKey(card.word) !== lastRandomWord);
+  const pool = candidates.length ? candidates : filteredCards.filter(card => normalizeWordKey(card.word) !== lastRandomWord);
+  if (!pool.length) return;
+  const selected = pool[Math.floor(Math.random() * pool.length)];
+  lastRandomWord = normalizeWordKey(selected.word);
+  currentIndex = filteredCards.indexOf(selected);
   isFlipped = false;
   render();
 }
