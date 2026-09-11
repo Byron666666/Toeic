@@ -3,7 +3,7 @@
 
   const data = window.GSAT_7000_DATA;
   if (!data || !Array.isArray(data.levels) || !data.levels.length) {
-    document.body.innerHTML = "<p style='padding:2rem'>?桀?鞈?頛憭望?嚗???渡????/p>";
+    document.body.innerHTML = "<p style='padding:2rem'>單字資料載入失敗，請重新整理頁面。</p>";
     return;
   }
 
@@ -12,10 +12,10 @@
   const numberFormat = new Intl.NumberFormat("zh-TW");
   const enrichment = window.GSAT_7000_ENRICHMENT?.entries || {};
   const levelNames = {
-    1: "?詨??箇?", 2: "?亙虜?脤?", 3: "銝剝??",
-    4: "擃?撣貊", 5: "?脤?摮?", 6: "?摮?",
+    1: "核心基礎", 2: "日常進階", 3: "中階應用",
+    4: "高階常用", 5: "進階字彙", 6: "挑戰字彙",
   };
-  const pileNames = { new: "?芸飛????, review: "??銴???", learned: "撌脣飛???? };
+  const pileNames = { new: "未學會牌堆", review: "重點複習牌堆", learned: "已學會牌堆" };
 
   const $ = (selector) => document.querySelector(selector);
   const elements = {
@@ -54,7 +54,7 @@
         }));
       }
     } catch {
-      elements.voiceStatus.textContent = "?汗?函?瘜摮脣漲??;
+      elements.voiceStatus.textContent = "瀏覽器目前無法儲存進度。";
     }
   }
 
@@ -144,13 +144,13 @@
     const fragment = document.createDocumentFragment();
     const senses = word ? enrichment[word.id] : null;
     if (word && !senses?.length) {
-      fragment.append(text("enrichment-note", "?冽?鞈??急??⊥?頛嚗???渡????));
+      fragment.append(text("enrichment-note", "用法資料暫時無法載入，請重新整理頁面。"));
     }
     (senses || []).forEach(([sense, synonyms, example, translation, note]) => {
       const item = document.createElement("span");
       item.className = "enrichment-sense";
       item.append(text("enrichment-sense-label", sense));
-      item.append(text("enrichment-synonyms", `?儔嚗?蝢抵?嚗?{synonyms}`));
+      item.append(text("enrichment-synonyms", `同義／近義詞：${synonyms}`));
       item.append(renderExample(example, word));
       item.append(text("enrichment-translation", translation, "zh-Hant"));
       if (note) item.append(text("enrichment-note", note));
@@ -246,37 +246,37 @@
 
     if (!word) {
       elements.cardTag.textContent = `Level ${state.level}`;
-      elements.cardBackTag.textContent = "瘝?蝚血??";
-      elements.cardWord.textContent = "????蝛箇?";
+      elements.cardBackTag.textContent = "沒有符合項目";
+      elements.cardWord.textContent = "這個牌堆目前是空的";
       elements.cardWord.className = "card-word";
       elements.cardPhonetic.textContent = "";
       elements.cardPartOfSpeech.textContent = "";
-      elements.cardMeaning.textContent = "隢????evel ???斗?撠?;
+      elements.cardMeaning.textContent = "請切換牌堆、Level 或清除搜尋";
       elements.cardMeaning.classList.remove("is-long");
       elements.cardSource.textContent = "";
       elements.reviewToggle.checked = false;
       elements.learnedToggle.checked = false;
-      elements.flashcard.setAttribute("aria-label", "?桀?瘝?蝚血?璇辣?摮?);
+      elements.flashcard.setAttribute("aria-label", "目前沒有符合條件的單字");
       return;
     }
 
     const status = getStatus(word.id);
     elements.cardTag.textContent = `Level ${state.level}`;
-    elements.cardBackTag.textContent = "閰儔?瘜?;
+    elements.cardBackTag.textContent = "詞義與用法";
     elements.cardWord.textContent = word.word;
     elements.cardWord.className = "card-word";
     if (word.word.length > 26) elements.cardWord.classList.add("is-long-phrase");
     else if (/\s|\//.test(word.word)) elements.cardWord.classList.add("is-phrase");
-    elements.cardPhonetic.textContent = word.phonetic || "?單??芸??澆?憪”??;
-    elements.cardPartOfSpeech.textContent = word.partOfSpeech || "閰扳璅內";
+    elements.cardPhonetic.textContent = word.phonetic || "音標未列於原始表格";
+    elements.cardPartOfSpeech.textContent = word.partOfSpeech || "詞性未標示";
     elements.cardMeaning.textContent = word.meaning;
     elements.cardMeaning.classList.toggle("is-long", word.meaning.length > 42);
-    elements.cardSource.textContent = `閰?靘?嚗DF 蝚?${word.sourcePage} ??繚 靘??蝢抵??箄??摰鉑;
+    elements.cardSource.textContent = `詞條來源：PDF 第 ${word.sourcePage} 頁 · 例句與近義詞為補充內容`;
     elements.reviewToggle.checked = status === "review";
     elements.learnedToggle.checked = status === "learned";
     elements.flashcard.setAttribute(
       "aria-label",
-      state.flipped ? `? ${word.word} ???瓩 : `?亦? ${word.word} ??蝢押?蝢抵????匝,
+      state.flipped ? `回到 ${word.word} 的英文卡面` : `查看 ${word.word} 的詞義、近義詞與例句`,
     );
   }
 
@@ -285,7 +285,7 @@
     if (!state.queue.length) {
       const empty = document.createElement("p");
       empty.className = "empty-state";
-      empty.textContent = "瘝?蝚血?璇辣?摮?;
+      empty.textContent = "沒有符合條件的單字。";
       fragment.append(empty);
     } else {
       state.queue.forEach((word) => {
@@ -298,7 +298,7 @@
         button.type = "button";
         button.className = "word-row-main";
         button.dataset.id = word.id;
-        button.setAttribute("aria-label", `蝺渡? ${word.word}`);
+        button.setAttribute("aria-label", `練習 ${word.word}`);
         const title = document.createElement("span");
         title.className = "list-word";
         const dot = document.createElement("span");
@@ -322,7 +322,7 @@
       });
     }
     elements.cardList.replaceChildren(fragment);
-    elements.visibleCount.textContent = `${numberFormat.format(state.queue.length)} 撘琛;
+    elements.visibleCount.textContent = `${numberFormat.format(state.queue.length)} 張`;
   }
 
   function updateActiveListItem() {
@@ -334,10 +334,10 @@
 
   function renderHeadings() {
     const count = currentLevelData().words.length;
-    elements.levelEyebrow.textContent = `Level ${state.level} 繚 ${levelNames[state.level] || "??摮?"}`;
-    elements.studyTitle.textContent = "7000 ?桀?銴?";
-    elements.levelTotal.textContent = `${numberFormat.format(count)} 撘琛;
-    elements.libraryTitle.textContent = `Level ${state.level} ?桀?摨冑;
+    elements.levelEyebrow.textContent = `Level ${state.level} · ${levelNames[state.level] || "分級字彙"}`;
+    elements.studyTitle.textContent = "7000 單字複習";
+    elements.levelTotal.textContent = `${numberFormat.format(count)} 張`;
+    elements.libraryTitle.textContent = `Level ${state.level} 單字庫`;
   }
 
   function refresh(options = {}) {
@@ -426,7 +426,7 @@
     const word = currentWord();
     if (!word) return;
     if (!("speechSynthesis" in window) || !("SpeechSynthesisUtterance" in window)) {
-      elements.voiceStatus.textContent = "?汗?其??舀隤????;
+      elements.voiceStatus.textContent = "這個瀏覽器不支援語音朗讀。";
       return;
     }
     const spokenWord = word.word.split("/")[0].replace(/\(\d+\)/g, " ")
@@ -435,9 +435,9 @@
     const utterance = new SpeechSynthesisUtterance(spokenWord);
     utterance.lang = "en-US";
     utterance.rate = 0.86;
-    utterance.onstart = () => { elements.voiceStatus.textContent = `甇???嚗?{spokenWord}`; };
+    utterance.onstart = () => { elements.voiceStatus.textContent = `正在朗讀：${spokenWord}`; };
     utterance.onend = () => { elements.voiceStatus.textContent = ""; };
-    utterance.onerror = () => { elements.voiceStatus.textContent = "?急??⊥??剜?潮??; };
+    utterance.onerror = () => { elements.voiceStatus.textContent = "暫時無法播放發音。"; };
     window.speechSynthesis.speak(utterance);
   }
 
@@ -450,7 +450,7 @@
   data.levels.forEach((levelData) => {
     const option = document.createElement("option");
     option.value = String(levelData.level);
-    option.textContent = `Level ${levelData.level} 繚 ${numberFormat.format(levelData.words.length)} 撘琛;
+    option.textContent = `Level ${levelData.level} · ${numberFormat.format(levelData.words.length)} 張`;
     elements.levelSelect.append(option);
   });
 
@@ -508,4 +508,3 @@
 
   refresh({ preserveCurrent: true });
 })();
-
