@@ -101,40 +101,18 @@
     return span;
   }
 
-  function exampleWordVariants(word) {
-    const variants = new Set();
-    (word?.word || "").split("/").map((part) => part.trim()).filter(Boolean).forEach((part) => {
-      variants.add(part);
-      const optionalEnding = part.match(/^(.*)\(([^)]+)\)$/);
-      if (optionalEnding) {
-        variants.add(optionalEnding[1]);
-        variants.add(`${optionalEnding[1]}${optionalEnding[2]}`);
-      }
-    });
-    return [...variants].filter((variant) => /[A-Za-z]/.test(variant))
-      .sort((left, right) => right.length - left.length);
-  }
-
   function renderExample(example, word) {
     const span = text("enrichment-example", "", "en");
-    const variants = exampleWordVariants(word).map((variant) =>
-      variant.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
-    if (!variants.length) {
+    const ranges = window.FlipWordsExampleMatcher?.findRanges(example, word.word) || [];
+    if (!ranges.length) {
       span.textContent = example;
       return span;
     }
-    const matcher = new RegExp(`\\b(?:${variants.join("|")})\\b`, "gi");
     let cursor = 0;
-    let found = false;
-    for (const match of example.matchAll(matcher)) {
-      found = true;
-      if (match.index > cursor) span.append(text("", example.slice(cursor, match.index)));
-      span.append(text("example-word", match[0]));
-      cursor = match.index + match[0].length;
-    }
-    if (!found) {
-      span.textContent = example;
-      return span;
+    for (const [start, end] of ranges) {
+      if (start > cursor) span.append(text("", example.slice(cursor, start)));
+      span.append(text("example-word", example.slice(start, end)));
+      cursor = end;
     }
     if (cursor < example.length) span.append(text("", example.slice(cursor)));
     return span;
@@ -151,8 +129,9 @@
       item.className = "enrichment-sense";
       item.append(text("enrichment-sense-label", sense));
       item.append(text("enrichment-synonyms", `同義／近義詞：${synonyms}`));
-      item.append(renderExample(example, word));
-      item.append(text("enrichment-translation", translation, "zh-Hant"));
+      const corrected = window.FlipWordsExampleCorrections?.(word.word, example, translation) || { example, translation };
+      item.append(renderExample(corrected.example, word));
+      item.append(text("enrichment-translation", corrected.translation, "zh-Hant"));
       if (note) item.append(text("enrichment-note", note));
       fragment.append(item);
     });
