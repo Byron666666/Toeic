@@ -337,6 +337,10 @@ select {
     --panel-padding: 0.9rem;
   }
 
+  html[data-page="toeic"] .card-list {
+    display: none;
+  }
+
   .topbar-actions {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   }

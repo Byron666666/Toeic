@@ -28,7 +28,7 @@
     positionText: $("#positionText"), progressFill: $("#progressFill"), flashcard: $("#flashcard"),
     cardTag: $("#cardTag"), cardBackTag: $("#cardBackTag"), cardWord: $("#cardWord"),
     cardPhonetic: $("#cardPhonetic"), cardPartOfSpeech: $("#cardPartOfSpeech"),
-    cardMeaning: $("#cardMeaning"), cardSource: $("#cardSource"),
+    cardMeaning: $("#cardMeaning"),
     cardEnrichment: $("#cardEnrichment"), cardBack: $("#cardBack"),
     pronounceButton: $("#pronounceButton"), voiceStatus: $("#voiceStatus"), flipButton: $("#flipButton"),
     previousButton: $("#previousButton"), nextButton: $("#nextButton"), shuffleButton: $("#shuffleButton"),
@@ -84,6 +84,7 @@
     flipped: false,
     queue: [],
     lastRandomId: null,
+    randomRounds: new Map(),
   };
 
   function sanitizeCloudProgress(value) {
@@ -282,7 +283,6 @@
       elements.cardPartOfSpeech.textContent = "";
       elements.cardMeaning.textContent = "請切換牌堆、Level 或清除搜尋";
       elements.cardMeaning.classList.remove("is-long");
-      elements.cardSource.textContent = "";
       elements.reviewToggle.checked = false;
       elements.learnedToggle.checked = false;
       elements.flashcard.setAttribute("aria-label", "目前沒有符合條件的單字");
@@ -296,11 +296,10 @@
     elements.cardWord.className = "card-word";
     if (word.word.length > 26) elements.cardWord.classList.add("is-long-phrase");
     else if (/\s|\//.test(word.word)) elements.cardWord.classList.add("is-phrase");
-    elements.cardPhonetic.textContent = word.phonetic || "音標未列於原始表格";
+    elements.cardPhonetic.textContent = word.phonetic || "暫無音標";
     elements.cardPartOfSpeech.textContent = word.partOfSpeech || "詞性未標示";
     elements.cardMeaning.textContent = word.meaning;
     elements.cardMeaning.classList.toggle("is-long", word.meaning.length > 42);
-    elements.cardSource.textContent = `詞條來源：PDF 第 ${word.sourcePage} 頁 · 例句與近義詞為補充內容`;
     elements.reviewToggle.checked = status === "review";
     elements.learnedToggle.checked = status === "learned";
     elements.flashcard.setAttribute(
@@ -335,10 +334,7 @@
         dot.setAttribute("aria-hidden", "true");
         const strong = document.createElement("strong");
         strong.textContent = word.word;
-        const page = document.createElement("small");
-        page.className = "list-level";
-        page.textContent = `p.${word.sourcePage}`;
-        title.append(dot, strong, page);
+        title.append(dot, strong);
         const phonetic = document.createElement("span");
         phonetic.className = "list-phonetic";
         phonetic.textContent = word.phonetic || word.partOfSpeech;
@@ -423,12 +419,27 @@
 
   function randomCard() {
     if (!state.queue.length) return;
-    if (state.queue.length === 1) return selectWord(state.queue[0].id);
-    const candidates = state.queue.filter((word) =>
+    // Keep each deck's round through navigation, filtering and progress updates.
+    const roundKey = JSON.stringify([
+      state.level, state.statusFilter, state.query.trim().toLocaleLowerCase("en"),
+    ]);
+    let seen = state.randomRounds.get(roundKey);
+    if (!seen) {
+      seen = new Set();
+      state.randomRounds.set(roundKey, seen);
+    }
+    let remaining = state.queue.filter((word) => !seen.has(word.id));
+    if (!remaining.length) {
+      seen.clear();
+      remaining = state.queue;
+    }
+    // Prefer a different visible card, but never skip the round's last unseen one.
+    const candidates = remaining.filter((word) =>
       word.id !== state.currentId && word.id !== state.lastRandomId);
-    const fallback = state.queue.filter((word) => word.id !== state.lastRandomId);
-    const pool = candidates.length ? candidates : fallback;
+    const fallback = remaining.filter((word) => word.id !== state.lastRandomId);
+    const pool = candidates.length ? candidates : fallback.length ? fallback : remaining;
     const selected = pool[Math.floor(Math.random() * pool.length)];
+    seen.add(selected.id);
     state.lastRandomId = selected.id;
     selectWord(selected.id);
   }

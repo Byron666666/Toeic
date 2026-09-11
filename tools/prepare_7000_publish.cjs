@@ -9,7 +9,7 @@ const root = path.resolve(__dirname, '..');
 const hash = bytes => crypto.createHash('sha256').update(bytes).digest('hex');
 const scope = process.argv.includes('--toeic') ? '' : '7000/';
 const paths = process.argv.includes('--all')
-  ? ['example-matcher.js', 'example-corrections.js', 'app.js', 'styles.css', '7000/app.js', 'index.html', '7000/index.html', '7000/styles.css']
+  ? ['example-matcher.js', 'example-corrections.js', 'app.js', 'styles.css', 'responsive-layout.css', '7000/app.js', 'index.html', '7000/index.html', '7000/styles.css']
   : ['example-matcher.js', 'example-corrections.js', ...['app.js', 'styles.css', 'index.html'].map(name => scope + name)];
 const files = ['touch-zoom-fix.js', ...paths].map(file => {
   const bytes = fs.readFileSync(path.join(root, file));

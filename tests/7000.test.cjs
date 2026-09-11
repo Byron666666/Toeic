@@ -209,6 +209,74 @@ test('random selection avoids the previous random card after manual navigation',
   assert.notEqual(api.currentWord().id, firstRandomId);
 });
 
+test('random draws exhaust every card before starting another non-repeating round', () => {
+  const ids = ['l1-0001', 'l1-0002', 'l1-0003', 'l1-0004'];
+  const { api } = boot({
+    [P]: JSON.stringify(Object.fromEntries(ids.map(id => [id, 'review']))),
+    [F]: JSON.stringify({ pile: 'review' }),
+  }, { randomValues: Array(8).fill(0.999) });
+  let previousRoundLast;
+  for (let round = 0; round < 2; round++) {
+    const drawn = [];
+    for (let i = 0; i < ids.length; i++) {
+      api.randomCard();
+      drawn.push(api.currentWord().id);
+    }
+    assert.equal(new Set(drawn).size, ids.length);
+    assert.deepEqual([...drawn].sort(), [...ids].sort());
+    if (previousRoundLast) assert.notEqual(drawn[0], previousRoundLast);
+    previousRoundLast = drawn.at(-1);
+  }
+});
+
+test('random round survives navigation and Level changes, including the last visible unseen card', () => {
+  const ids = ['l1-0001', 'l1-0002', 'l1-0003', 'l1-0004'];
+  const { api } = boot({
+    [P]: JSON.stringify(Object.fromEntries(ids.map(id => [id, 'review']))),
+    [F]: JSON.stringify({ pile: 'review' }),
+  }, { randomValues: Array(4).fill(0.999) });
+  const drawn = [];
+  api.randomCard(); drawn.push(api.currentWord().id);
+  api.moveCard(1);
+  api.refresh();
+  api.randomCard(); drawn.push(api.currentWord().id);
+  api.setLevel(2);
+  api.setLevel(1);
+  api.randomCard(); drawn.push(api.currentWord().id);
+  const lastUnseen = ids.find(id => !drawn.includes(id));
+  api.selectWord(lastUnseen);
+  api.randomCard(); drawn.push(api.currentWord().id);
+  assert.equal(drawn.at(-1), lastUnseen);
+  assert.deepEqual([...drawn].sort(), [...ids].sort());
+});
+
+test('progress changes do not restart a partly completed random round', () => {
+  const ids = ['l1-0001', 'l1-0002', 'l1-0003', 'l1-0004'];
+  const { api } = boot({
+    [P]: JSON.stringify(Object.fromEntries(ids.map(id => [id, 'review']))),
+    [F]: JSON.stringify({ pile: 'review' }),
+  }, { randomValues: Array(3).fill(0.999) });
+  const drawn = [];
+  api.randomCard(); drawn.push(api.currentWord().id);
+  api.randomCard(); drawn.push(api.currentWord().id);
+  const unseen = ids.filter(id => !drawn.includes(id));
+  api.selectWord(unseen[0]);
+  api.setCurrentStatus('learned');
+  api.randomCard();
+  assert.equal(api.currentWord().id, unseen[1]);
+});
+
+test('single-card random rounds and an emptied pile remain safe', () => {
+  const { api } = boot({
+    [P]: JSON.stringify({ 'l1-0001': 'review' }),
+    [F]: JSON.stringify({ pile: 'review' }),
+  }, { randomValues: [0, 0] });
+  api.randomCard(); assert.equal(api.currentWord().id, 'l1-0001');
+  api.randomCard(); assert.equal(api.currentWord().id, 'l1-0001');
+  api.setCurrentStatus('learned');
+  api.randomCard(); assert.equal(api.currentWord(), null);
+});
+
 test('search and empty state disable all study actions', () => {
   const { api, nodes } = boot();
   for (const query of ['ABLE', '能，可以', 'ˋeb!']) {
