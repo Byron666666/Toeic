@@ -4,8 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
     <meta name="theme-color" content="#17152f" />
-    <meta name="description" content="憭扯葉敹?7000 ?桀? Level 1?? ???桀??∴??脣漲???摮澈???脣??? />
-    <title>FlipWords 7000 ?桀???/title>
+    <meta name="description" content="大考中心 7000 單字 Level 1–6 分級單字卡，進度與多益單字庫分開儲存。" />
+    <title>FlipWords 7000 單字卡</title>
     <link rel="stylesheet" href="../styles.css" />
     <link rel="stylesheet" href="../ui-enhancements.css" />
     <link rel="stylesheet" href="../touch-zoom-fix.css" />
@@ -13,46 +13,46 @@
     <link rel="stylesheet" href="../pile-switcher-fix.css" />
     <link rel="stylesheet" href="../site-nav.css" />
     <link rel="stylesheet" href="../firebase-sync.css" />
-    <link rel="stylesheet" href="styles.css?v=20260910-style-1" />
+    <link rel="stylesheet" href="styles.css?v=20260911-utf8-fix" />
   </head>
   <body>
     <div class="ambient-scene" aria-hidden="true">
       <span class="ambient-orb orb-one"></span><span class="ambient-orb orb-two"></span>
-      <span class="ambient-spark spark-one">??/span><span class="ambient-spark spark-two">??/span><span class="ambient-spark spark-three">??/span>
+      <span class="ambient-spark spark-one">✦</span><span class="ambient-spark spark-two">✧</span><span class="ambient-spark spark-three">✦</span>
       <img class="study-mascot" id="studyMascot" src="../study-mascot.svg" alt="" />
-      <span class="mascot-bubble" id="mascotBubble">隞予銋?韏瑟??桀??園脰鋡嚗?/span>
+      <span class="mascot-bubble" id="mascotBubble">今天也一起把單字收進腦袋吧！</span>
     </div>
 
     <header class="topbar">
       <div class="brand-lockup">
         <span class="brand-mark" aria-hidden="true">F</span>
-        <div><p class="eyebrow">English flashcards</p><h1>FlipWords</h1><p class="brand-subtitle">雿? 7000 ?桀??芰?摰?/p></div>
+        <div><p class="eyebrow">English flashcards</p><h1>FlipWords</h1><p class="brand-subtitle">你的 7000 單字自習室</p></div>
       </div>
-      <div class="topbar-actions" aria-label="蝬脩??＊蝷箄?撣唾?閮剖?">
-        <nav class="site-tabs" aria-label="摮澈??">
-          <a class="site-tab" href="../"><span class="site-tab-icon" aria-hidden="true">??</span><span>憭??桀?</span></a>
-          <a class="site-tab is-active" href="./" aria-current="page"><span class="site-tab-icon" aria-hidden="true">?妣</span><span>7000 ?桀?</span></a>
+      <div class="topbar-actions" aria-label="網站、顯示與帳號設定">
+        <nav class="site-tabs" aria-label="字庫切換">
+          <a class="site-tab" href="../"><span class="site-tab-icon" aria-hidden="true">🃏</span><span>多益單字</span></a>
+          <a class="site-tab is-active" href="./" aria-current="page"><span class="site-tab-icon" aria-hidden="true">🧭</span><span>7000 單字</span></a>
         </nav>
-        <a class="ghost-button" href="../daily.html" aria-label="??瘥 TOEIC ?梯?" style="display:inline-flex;align-items:center;gap:.45rem;text-decoration:none;white-space:nowrap;">
-          <span aria-hidden="true">??</span>
-          <span>瘥??</span>
+        <a class="ghost-button" href="../daily.html" aria-label="前往每日 TOEIC 閱讀" style="display:inline-flex;align-items:center;gap:.45rem;text-decoration:none;white-space:nowrap;">
+          <span aria-hidden="true">📖</span>
+          <span>每日文章</span>
         </a>
-        <label class="theme-picker" for="themeSelect"><span>?湔</span><select id="themeSelect" aria-label="?豢?蝬脩?銝駁?">
-          <option value="sakura">憭姣?芰?摰?/option><option value="ocean">瘚琿◢?刻?</option>
-          <option value="cosmos">?征?擗?/option><option value="cafe">???撱?/option>
+        <label class="theme-picker" for="themeSelect"><span>場景</span><select id="themeSelect" aria-label="選擇網站主題">
+          <option value="sakura">夜櫻自習室</option><option value="ocean">海風晨讀</option>
+          <option value="cosmos">星空圖書館</option><option value="cafe">暖光咖啡廳</option>
         </select></label>
-        <button class="ghost-button sound-button" id="soundToggle" type="button" aria-pressed="true"><span aria-hidden="true">??</span><span>鈭??單?</span></button>
-        <div class="account-controls" aria-label="Google 撣唾??蝡臬?甇?>
+        <button class="ghost-button sound-button" id="soundToggle" type="button" aria-pressed="true"><span aria-hidden="true">🔊</span><span>互動音效</span></button>
+        <div class="account-controls" aria-label="Google 帳號與雲端同步">
           <button class="google-sign-in-button" id="googleSignInButton" type="button">
             <span class="google-mark" aria-hidden="true">G</span>
-            <span>Google ?餃</span>
+            <span>Google 登入</span>
           </button>
           <div class="signed-in-account" id="signedInAccount" hidden>
             <img class="account-avatar" id="accountAvatar" alt="" referrerpolicy="no-referrer" />
             <span class="account-name" id="accountName"></span>
-            <button class="account-sign-out" id="googleSignOutButton" type="button">?餃</button>
+            <button class="account-sign-out" id="googleSignOutButton" type="button">登出</button>
           </div>
-          <span class="cloud-sync-status" id="cloudSyncStatus" data-state="local" aria-live="polite">?祆??脣?</span>
+          <span class="cloud-sync-status" id="cloudSyncStatus" data-state="local" aria-live="polite">本機儲存</span>
         </div>
       </div>
     </header>
@@ -60,70 +60,70 @@
     <main class="app-shell">
       <section class="study-panel" aria-labelledby="studyTitle">
         <div class="panel-heading">
-          <div><p class="eyebrow" id="levelEyebrow">Level 1</p><h2 id="studyTitle">7000 ?桀?銴?</h2></div>
-          <span class="pill" id="levelTotal">0 撘?/span>
+          <div><p class="eyebrow" id="levelEyebrow">Level 1</p><h2 id="studyTitle">7000 單字複習</h2></div>
+          <span class="pill" id="levelTotal">0 張</span>
         </div>
-        <div class="study-hud" aria-label="隞摮貊???">
-          <div class="hud-chip combo-chip"><span aria-hidden="true">??/span><span><strong id="comboCount">0</strong> ???</span></div>
-          <div class="hud-chip xp-chip"><span aria-hidden="true">??/span><span><strong id="sessionXp">0</strong> XP</span></div>
-          <div class="goal-meter"><span class="goal-label">隞撠釣??/span><span class="goal-track" aria-hidden="true"><span id="goalProgress"></span></span><strong id="goalText">0 / 1000</strong></div>
+        <div class="study-hud" aria-label="今日學習回饋">
+          <div class="hud-chip combo-chip"><span aria-hidden="true">⚡</span><span><strong id="comboCount">0</strong> 連擊</span></div>
+          <div class="hud-chip xp-chip"><span aria-hidden="true">✨</span><span><strong id="sessionXp">0</strong> XP</span></div>
+          <div class="goal-meter"><span class="goal-label">今日專注值</span><span class="goal-track" aria-hidden="true"><span id="goalProgress"></span></span><strong id="goalText">0 / 1000</strong></div>
           <p class="companion-line" id="companionLine" hidden></p>
         </div>
-        <div class="level-switcher" id="levelGrid" aria-label="?豢??桀?蝑?"></div>
-        <div class="pile-switcher" aria-label="?豢?銴???">
-          <button class="pile-button is-active" id="unlearnedPileButton" type="button" aria-pressed="true"><span>?芸飛??/span><strong id="unlearnedPileCount">0</strong></button>
-          <button class="pile-button" id="reviewPileButton" type="button" aria-pressed="false"><span>??銴?</span><strong id="reviewPileCount">0</strong></button>
-          <button class="pile-button" id="learnedPileButton" type="button" aria-pressed="false"><span>撌脣飛??/span><strong id="learnedPileCount">0</strong></button>
+        <div class="level-switcher" id="levelGrid" aria-label="選擇單字等級"></div>
+        <div class="pile-switcher" aria-label="選擇複習牌堆">
+          <button class="pile-button is-active" id="unlearnedPileButton" type="button" aria-pressed="true"><span>未學會</span><strong id="unlearnedPileCount">0</strong></button>
+          <button class="pile-button" id="reviewPileButton" type="button" aria-pressed="false"><span>重點複習</span><strong id="reviewPileCount">0</strong></button>
+          <button class="pile-button" id="learnedPileButton" type="button" aria-pressed="false"><span>已學會</span><strong id="learnedPileCount">0</strong></button>
         </div>
-        <div class="progress-row"><span id="activePileLabel">?芸飛????/span><span id="positionText">0 / 0</span><div class="progress-track" aria-hidden="true"><span id="progressFill"></span></div></div>
+        <div class="progress-row"><span id="activePileLabel">未學會牌堆</span><span id="positionText">0 / 0</span><div class="progress-track" aria-hidden="true"><span id="progressFill"></span></div></div>
 
-        <div class="flashcard" id="flashcard" role="button" tabindex="0" aria-label="蝧駁">
+        <div class="flashcard" id="flashcard" role="button" tabindex="0" aria-label="翻面">
           <span class="flashcard-face flashcard-front">
-            <span class="card-corner corner-top" aria-hidden="true">??/span><span class="card-tag" id="cardTag">Level 1</span>
-            <strong class="card-word" id="cardWord">Loading??/strong><span class="card-phonetic" id="cardPhonetic"></span><span class="card-pos" id="cardPartOfSpeech"></span>
-            <span class="card-note">暺??∠?蝧駁</span><span class="card-corner corner-bottom" aria-hidden="true">??/span>
+            <span class="card-corner corner-top" aria-hidden="true">✦</span><span class="card-tag" id="cardTag">Level 1</span>
+            <strong class="card-word" id="cardWord">Loading…</strong><span class="card-phonetic" id="cardPhonetic"></span><span class="card-pos" id="cardPartOfSpeech"></span>
+            <span class="card-note">點擊卡片翻面</span><span class="card-corner corner-bottom" aria-hidden="true">✧</span>
           </span>
           <span class="flashcard-face flashcard-back" id="cardBack">
-            <span class="card-corner corner-top" aria-hidden="true">??/span><span class="card-tag" id="cardBackTag">銝剜???/span>
-            <strong class="card-meaning" id="cardMeaning">頛銝?/strong>
+            <span class="card-corner corner-top" aria-hidden="true">✦</span><span class="card-tag" id="cardBackTag">中文意思</span>
+            <strong class="card-meaning" id="cardMeaning">載入中</strong>
             <span class="card-enrichment" id="cardEnrichment"></span>
             <span class="card-related" id="cardSource"></span>
-            <span class="card-corner corner-bottom" aria-hidden="true">??/span>
+            <span class="card-corner corner-bottom" aria-hidden="true">✧</span>
           </span>
         </div>
 
-        <div class="controls" aria-label="?桀??⊥?雿?>
-          <button class="icon-button" id="previousButton" type="button" title="銝?撘? aria-label="銝?撘?>??/button>
-          <button class="primary-button" id="pronounceButton" type="button">?潮</button>
-          <button class="primary-button" id="flipButton" type="button">蝧駁</button>
-          <button class="icon-button" id="nextButton" type="button" title="銝?撘? aria-label="銝?撘?>??/button>
-          <button class="primary-button" id="shuffleButton" type="button">?冽?</button>
+        <div class="controls" aria-label="單字卡操作">
+          <button class="icon-button" id="previousButton" type="button" title="上一張" aria-label="上一張">←</button>
+          <button class="primary-button" id="pronounceButton" type="button">發音</button>
+          <button class="primary-button" id="flipButton" type="button">翻面</button>
+          <button class="icon-button" id="nextButton" type="button" title="下一張" aria-label="下一張">→</button>
+          <button class="primary-button" id="shuffleButton" type="button">隨機</button>
         </div>
         <p class="voice-status" id="voiceStatus" aria-live="polite"></p>
-        <p class="keyboard-hint"><kbd>Space</kbd> 蝧駁?<kbd>??/kbd><kbd>??/kbd> ??</p>
-        <div class="status-toggles" aria-label="閮剖??桀????>
-          <label class="status-toggle review-toggle" data-feedback="review"><input id="reviewToggle" type="checkbox" /><span class="toggle-icon" aria-hidden="true">?</span><span class="toggle-copy"><strong>??銴?</strong></span><span class="toggle-check" aria-hidden="true">??/span></label>
-          <label class="status-toggle learned-toggle" data-feedback="learned"><input id="learnedToggle" type="checkbox" /><span class="toggle-icon" aria-hidden="true">??</span><span class="toggle-copy"><strong>撌脣飛??/strong></span><span class="toggle-check" aria-hidden="true">??/span></label>
+        <p class="keyboard-hint"><kbd>Space</kbd> 翻面　<kbd>←</kbd><kbd>→</kbd> 換字</p>
+        <div class="status-toggles" aria-label="設定單字狀態">
+          <label class="status-toggle review-toggle" data-feedback="review"><input id="reviewToggle" type="checkbox" /><span class="toggle-icon" aria-hidden="true">🔥</span><span class="toggle-copy"><strong>重點複習</strong></span><span class="toggle-check" aria-hidden="true">✓</span></label>
+          <label class="status-toggle learned-toggle" data-feedback="learned"><input id="learnedToggle" type="checkbox" /><span class="toggle-icon" aria-hidden="true">🌟</span><span class="toggle-copy"><strong>已學會</strong></span><span class="toggle-check" aria-hidden="true">✓</span></label>
         </div>
       </section>
 
       <section class="library-panel" aria-labelledby="libraryTitle">
-        <div class="panel-heading"><div><p class="eyebrow">Level library</p><h2 id="libraryTitle">Level 1 ?桀?摨?/h2></div><span class="pill" id="visibleCount">0 撘?/span></div>
+        <div class="panel-heading"><div><p class="eyebrow">Level library</p><h2 id="libraryTitle">Level 1 單字庫</h2></div><span class="pill" id="visibleCount">0 張</span></div>
         <div class="filters library-filters">
-          <label><span>??</span><input id="searchInput" type="search" placeholder="???桀???蝢押?蝢抵????? /></label>
-          <label><span>Level</span><select id="levelSelect" aria-label="?豢? Level"></select></label>
+          <label><span>搜尋</span><input id="searchInput" type="search" placeholder="搜尋單字、詞義、近義詞或例句" /></label>
+          <label><span>Level</span><select id="levelSelect" aria-label="選擇 Level"></select></label>
         </div>
-        <p class="library-note">蝧駁?亦?餈儔閰??亥?蝧餉陌??蝢抵?靘?蝷箇儔??剁?隢??瘜榆?啜?/p>
+        <p class="library-note">翻面查看近義詞、例句與翻譯。近義詞依標示義項選用，請留意用法差異。</p>
         <div class="card-list" id="cardList" aria-live="polite"></div>
       </section>
     </main>
 
     <div class="feedback-layer" id="feedbackLayer" aria-hidden="true"></div>
     <div class="action-toast" id="actionToast" role="status" aria-live="polite"></div>
-    <div class="achievement-popover" id="achievementPopover" role="status" aria-live="polite"><span aria-hidden="true">??</span><div><strong>撠釣??蝝?</strong><small>雿歇???摰? 5 甈∪飛蝧?雿?/small></div></div>
+    <div class="achievement-popover" id="achievementPopover" role="status" aria-live="polite"><span aria-hidden="true">🏆</span><div><strong>專注力升級！</strong><small>你已連續完成 5 次學習動作</small></div></div>
     <script src="vocab-data.js?v=20260910-final"></script>
     <script src="enrichment-data.js?v=20260910-final"></script>
-    <script src="app.js?v=20260910-random-highlight"></script>
+    <script src="app.js?v=20260911-utf8-fix"></script>
     <script src="../ui-enhancements.js"></script><script src="../touch-zoom-fix.js"></script>
     <script src="https://www.gstatic.com/firebasejs/12.16.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/12.16.0/firebase-auth-compat.js"></script>
@@ -131,4 +131,3 @@
     <script src="firebase-sync-7000.js?v=20260910-2"></script>
   </body>
 </html>
-
