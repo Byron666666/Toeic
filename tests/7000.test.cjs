@@ -8,6 +8,7 @@ const vm = require('node:vm');
 const root = path.join(__dirname, '..');
 const html = fs.readFileSync(path.join(root, '7000/index.html'), 'utf8');
 const app = fs.readFileSync(path.join(root, '7000/app.js'), 'utf8');
+const firebaseSync = fs.readFileSync(path.join(root, '7000/firebase-sync-7000.js'), 'utf8');
 const dataCode = fs.readFileSync(path.join(root, '7000/vocab-data.js'), 'utf8');
 const P = 'flipwords:gsat-7000:progress:v1';
 const F = 'flipwords:gsat-7000:preferences:v1';
@@ -15,7 +16,7 @@ const F = 'flipwords:gsat-7000:preferences:v1';
 class Element {
   constructor(tag = 'div') {
     this.tag = tag; this.children = []; this.attributes = {}; this.style = {};
-    this.dataset = {}; this.listeners = {}; this.value = ''; this.textContent = '';
+    this.dataset = {}; this.listeners = {}; this.value = ''; this._textContent = '';
     const classes = new Set();
     this.classList = {
       contains: value => classes.has(value),
@@ -28,6 +29,10 @@ class Element {
       },
     };
   }
+  get textContent() {
+    return this.children.length ? this.children.map(child => child.textContent ?? '').join('') : this._textContent;
+  }
+  set textContent(value) { this._textContent = String(value ?? ''); this.children = []; }
   setAttribute(key, value) { this.attributes[key] = value; }
   addEventListener(key, callback) { this.listeners[key] = callback; }
   append(...children) { this.children.push(...children); }
@@ -36,7 +41,9 @@ class Element {
   closest(selectors) { return selectors.split(',').map(s => s.trim()).includes(this.tag) ? this : null; }
 }
 
-function boot(initial = {}, { blockedStorage = false, missingData = false, speech = true } = {}) {
+function boot(initial = {}, {
+  blockedStorage = false, missingData = false, speech = true, enrichment = null, randomValues = null,
+} = {}) {
   const storage = { ...initial }, writes = [];
   const nodes = new Map([...html.matchAll(/id="([^"]+)"/g)].map(m => ['#' + m[1], new Element()]));
   nodes.set('.card-front', new Element()); nodes.set('.card-back', new Element());
@@ -59,8 +66,12 @@ function boot(initial = {}, { blockedStorage = false, missingData = false, speec
   };
   const window = { setTimeout: () => 1, clearTimeout: () => {} };
   if (speech) window.speechSynthesis = { cancel() {}, speak(utterance) { spoken.push(utterance); } };
+  const random = Array.isArray(randomValues) && randomValues.length
+    ? (() => randomValues.shift()) : Math.random;
+  const testMath = Object.create(Math);
+  testMath.random = random;
   const context = {
-    window, document, Intl, console,
+    window, document, Intl, console, Math: testMath,
     SpeechSynthesisUtterance: function (text) { this.text = text; },
     localStorage: {
       getItem(key) { if (blockedStorage) throw Error('blocked'); return storage[key] ?? null; },
@@ -69,7 +80,12 @@ function boot(initial = {}, { blockedStorage = false, missingData = false, speec
   };
   if (speech) window.SpeechSynthesisUtterance = context.SpeechSynthesisUtterance;
   vm.createContext(context);
+  for (const file of ['example-matcher.js', 'example-corrections.js']) vm.runInContext(fs.readFileSync(path.join(root, file), 'utf8'), context);
   if (!missingData) vm.runInContext(dataCode, context);
+  if (enrichment) window.GSAT_7000_ENRICHMENT = { entries: enrichment };
+  else if (fs.existsSync(path.join(root, '7000/enrichment-data.js'))) {
+    vm.runInContext(fs.readFileSync(path.join(root, '7000/enrichment-data.js'), 'utf8'), context);
+  }
   const instrumented = app.replace(/\}\)\(\);\s*$/, `window.testAPI = {
     state, setLevel, refresh, currentWord, selectWord, moveCard, flipCard,
     randomCard, setCurrentStatus, speakCurrentWord, clearFilters
@@ -129,6 +145,15 @@ test('flip, previous/next wrap and random selection', () => {
   assert.equal(api.state.flipped, false);
   api.moveCard(1); assert.equal(api.currentWord().id, 'l1-0001');
   api.randomCard(); assert.notEqual(api.currentWord().id, 'l1-0001');
+});
+
+test('random selection avoids the previous random card after manual navigation', () => {
+  const { api } = boot({}, { randomValues: [0.999, 0.999] });
+  api.randomCard();
+  const firstRandomId = api.currentWord().id;
+  api.moveCard(1);
+  api.randomCard();
+  assert.notEqual(api.currentWord().id, firstRandomId);
 });
 
 test('search and empty state disable all study actions', () => {
@@ -219,17 +244,23 @@ test('missing data shows a readable error', () => {
   assert.match(document.body.innerHTML, /載入失敗/);
 });
 
-test('static paths resolve and 7000 loads no TOEIC/Firebase scripts', () => {
+test('static paths resolve and 7000 loads its isolated Firebase sync', () => {
   for (const relative of ['index.html', '7000/index.html']) {
     const text = fs.readFileSync(path.join(root, relative), 'utf8');
     const ids = Array.from(text.matchAll(/id="([^"]+)"/g), m => m[1]);
     assert.equal(ids.length, new Set(ids).size);
     for (const [, ref] of text.matchAll(/(?:src|href)="([^"]+)"/g)) {
       if (/^(?:https?:|#)/.test(ref)) continue;
-      assert.ok(fs.existsSync(path.resolve(root, path.dirname(relative), ref)), ref);
+      assert.ok(fs.existsSync(path.resolve(root, path.dirname(relative), ref.split(/[?#]/)[0])), ref);
     }
   }
-  assert.ok(!/firebase|\.\.\/app\.js|\.\.\/vocab-data\.js/.test(html));
+  assert.doesNotMatch(html, /\.\.\/app\.js|\.\.\/vocab-data\.js/);
+  assert.match(html, /firebase-app-compat\.js/);
+  assert.match(html, /firebase-auth-compat\.js/);
+  assert.match(html, /firebase-firestore-compat\.js/);
+  assert.match(html, /firebase-sync-7000\.js\?v=20260910/);
+  assert.match(html, /id="googleSignInButton"/);
+  assert.match(html, /href="\.\.\/firebase-sync\.css"/);
   assert.match(html, /href="\.\.\/styles\.css"/);
   assert.match(html, /href="\.\.\/ui-enhancements\.css"/);
   assert.match(html, /class="study-panel"/);
@@ -240,4 +271,85 @@ test('static paths resolve and 7000 loads no TOEIC/Firebase scripts', () => {
   assert.match(html, /src="\.\.\/touch-zoom-fix\.js"/);
   const css = fs.readFileSync(path.join(root, '7000/styles.css'), 'utf8');
   assert.match(css, /touch-action:\s*manipulation/);
+});
+
+test('7000 Firebase sync uses an isolated progress document and storage scope', () => {
+  assert.match(firebaseSync, /flipwords-gsat-7000/);
+  assert.match(firebaseSync, /flipwords:gsat-7000:progress:v1/);
+  assert.match(firebaseSync, /flipwords:gsat-7000:preferences:v1/);
+  assert.match(firebaseSync, /collection\("users"\)\.doc\(user\.uid\)/);
+  assert.doesNotMatch(firebaseSync, /flipwords\.cards\.v2|BUILT_IN_LIBRARY_VERSION|customCards/);
+});
+
+const sampleEnrichment = {
+  'l1-0002': [['有能力的', 'capable', 'She is able to repair this clock.', '她有能力修理這座時鐘。', 'be able to 後接原形動詞。']],
+  'l1-0003': [
+    ['介系詞：關於', 'concerning', 'The book is about local birds.', '這本書談的是當地鳥類。', ''],
+    ['副詞：約', 'approximately', 'We waited about twenty minutes.', '我們等了大約二十分鐘。', ''],
+  ],
+};
+
+test('sense examples, translations and notes change with the current card and clear in an empty pile', () => {
+  const { api, nodes } = boot({}, { enrichment: sampleEnrichment });
+  api.selectWord('l1-0002'); api.flipCard();
+  let displayed = nodes.get('#cardEnrichment').children;
+  assert.equal(displayed.length, 1);
+  assert.equal(displayed[0].children[2].textContent, sampleEnrichment['l1-0002'][0][2]);
+  assert.equal(displayed[0].children[2].attributes.lang, 'en');
+  assert.ok(displayed[0].children[2].children.some(child =>
+    child.className === 'example-word' && child.textContent === 'able'));
+  assert.equal(displayed[0].children[3].textContent, '她有能力修理這座時鐘。');
+  api.selectWord('l1-0003');
+  assert.equal(nodes.get('#cardEnrichment').children.length, 2);
+  api.state.query = 'no-such-word-987654321'; api.refresh();
+  assert.equal(nodes.get('#cardEnrichment').children.length, 0);
+});
+
+test('search finds synonyms, the English example, Chinese translation and usage notes', () => {
+  const { api } = boot({}, { enrichment: sampleEnrichment });
+  for (const query of ['CAPABLE', 'repair this clock', '這座時鐘', '原形動詞']) {
+    api.state.query = query; api.refresh();
+    assert.ok(api.state.queue.some(word => word.id === 'l1-0002'), query);
+  }
+});
+
+test('enrichment updates retain learned/review states, saved position and TOEIC storage', () => {
+  const initial = { [P]: JSON.stringify({ 'l1-0001':'learned', 'l1-0002':'review' }),
+    [F]: JSON.stringify({ level:1, pile:'review', currentByLevel:{ 1:'l1-0002', 3:'l3-0004' } }),
+    'flipwords.cards.v1': 'existing TOEIC data' };
+  const { api, storage } = boot(initial, { enrichment: sampleEnrichment });
+  assert.equal(api.currentWord().id, 'l1-0002');
+  assert.equal(storage[P], initial[P]);
+  assert.equal(JSON.parse(storage[F]).currentByLevel[3], 'l3-0004');
+  assert.equal(storage['flipwords.cards.v1'], initial['flipwords.cards.v1']);
+});
+
+test('supplementary text is inserted as literal text and missing data has an explicit message', () => {
+  const unsafeText = '<img src=x onerror=alert(1)>';
+  const { api, nodes } = boot({}, { enrichment: { 'l1-0002': [['義項','near word',unsafeText,'翻譯','']] } });
+  api.selectWord('l1-0002');
+  const example = nodes.get('#cardEnrichment').children[0].children[2];
+  assert.equal(example.textContent, unsafeText);
+  assert.equal(example.children.length, 0);
+  api.selectWord('l1-0001');
+  assert.match(nodes.get('#cardEnrichment').children[0].textContent, /無法載入/);
+});
+
+test('production enrichment covers all source cards and matches the approved source records', () => {
+  const code = fs.readFileSync(path.join(root, '7000/enrichment-data.js'), 'utf8');
+  const context = { window:{} };
+  vm.runInNewContext(code, context);
+  const entries = context.window.GSAT_7000_ENRICHMENT.entries;
+  const words = boot().data.levels.flatMap(level => level.words);
+  assert.equal(Object.keys(entries).length, words.length);
+  for (const word of words) assert.ok(entries[word.id]?.length, word.id);
+  for (let level=1; level<=6; level++) {
+    const rows = fs.readFileSync(path.join(root, `7000/content/level-${level}.jsonl`), 'utf8')
+      .replace(/^\uFEFF/,'').trim().split(/\r?\n/).filter(Boolean).map(JSON.parse);
+    const expected = {};
+    for (const [id,...sense] of rows) (expected[id] ||= []).push(sense);
+    for (const [id,senses] of Object.entries(expected)) {
+      assert.equal(JSON.stringify(entries[id]), JSON.stringify(senses), id);
+    }
+  }
 });
